@@ -39,9 +39,9 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
 
 
-# Updated to secure browser form submittals on your exact URL
+# FIXED: Added your exact live school domain here so form requests do not get blocked
 CSRF_TRUSTED_ORIGINS = [
-    "https://railway.app",
+    "https://kogwang-school-production-6ab2.up.railway.app",
     "https://railway.app",
     "https://*.up.railway.app", 
 ]
@@ -67,10 +67,7 @@ INSTALLED_APPS = [
 
 
 # =========================
-# MIDDLEWARE (OPTIMIZED ORDER)
-# =========================
-# =========================
-# MIDDLEWARE (OPTIMIZED ORDER)
+# MIDDLEWARE (CLEAN SINGLE TENANT)
 # =========================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -82,7 +79,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
 
 
 # FIXED: Points to your exact folder name on GitHub
