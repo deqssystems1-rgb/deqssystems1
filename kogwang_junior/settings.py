@@ -158,7 +158,8 @@ USE_TZ = True
 
 
 # =========================
-# STATIC FILES (FIXED FOR MODERN WHITENOISE)
+# =========================
+# STATIC FILES (FIXED FOR DJANGO 6.0+)
 # =========================
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -167,8 +168,12 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
-# Updated to the modern WhiteNoise storage class to prevent breaking on deployment
-STATICFILES_STORAGE = "whitenoise.storage.CompressedWithFilesFilesStorage"
+# This replaces STATICFILES_STORAGE so your build doesn't crash on Django 6.x
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 
 # =========================
@@ -189,3 +194,4 @@ LOGIN_URL = '/login/'
 # DEFAULT AUTO FIELD
 # =========================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
