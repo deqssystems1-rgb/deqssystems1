@@ -1,1 +1,1 @@
-web: gunicorn kogwang.wsgi
+web: gunicorn agawo_junior.wsgi
