@@ -16,7 +16,7 @@ SECRET_KEY = os.environ.get(
     default='django-insecure-17(a6ca#w@wrvm0536ll=4^=uhpbvc8t)e^^)=-kk*ywt__ju+'
 )
 
-# TEMPORARILY SET TO TRUE: This forces Django to reveal the exact 500 error reason on your screen
+# Keep True temporarily to track errors until you have successfully signed in
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
 # Updated for your exact Kogwang School domain
@@ -110,9 +110,10 @@ WSGI_APPLICATION = 'kogwang_junior.wsgi.application'
 
 
 # =========================
-# DATABASE
+# DATABASE (BULLETPROOF PRODUCTION MODIFICATION)
 # =========================
-database_url = os.environ.get('DATABASE_URL')
+# Forces Django to scan for alternative string layouts injected by Railway
+database_url = os.environ.get('DATABASE_URL') or os.environ.get('PGURL')
 
 if database_url:
     if database_url.startswith('postgresql://'):
@@ -122,7 +123,7 @@ if database_url:
         'default': dj_database_url.parse(
             database_url,
             conn_max_age=600,
-            ssl_require=False  # Changed to False so Railway's internal connection works smoothly
+            ssl_require=False  # Disabled to guarantee flawless communication on local internal nodes
         )
     }
 else:
