@@ -16,8 +16,8 @@ SECRET_KEY = os.environ.get(
     default='django-insecure-17(a6ca#w@wrvm0536ll=4^=uhpbvc8t)e^^)=-kk*ywt__ju+'
 )
 
-# Defaults to False in production, turns True only if you add DEBUG=True in Railway variables
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+# TEMPORARILY SET TO TRUE: This forces Django to reveal the exact 500 error reason on your screen
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
 # Updated for your exact Kogwang School domain
 ALLOWED_HOSTS = [
