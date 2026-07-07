@@ -1,1 +1,1 @@
-web: gunicorn kogwang_junior.wsgi
+web: python manage.py migrate && gunicorn kogwang_junior.wsgi
