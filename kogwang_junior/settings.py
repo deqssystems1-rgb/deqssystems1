@@ -41,7 +41,7 @@ if not DEBUG:
 
 # Updated to secure browser form submittals on your exact URL
 CSRF_TRUSTED_ORIGINS = [
-    "https://kogwang-school-production-6ab2.up.railway.app",
+    "https://railway.app",
     "https://railway.app",
     "https://*.up.railway.app", 
 ]
@@ -86,7 +86,8 @@ MIDDLEWARE = [
 ]
 
 
-ROOT_URLCONF = 'kogwang.urls'
+# RESTORED: Points back to your actual folder name on GitHub
+ROOT_URLCONF = 'agawo_junior.urls'
 
 
 # =========================
@@ -109,7 +110,8 @@ TEMPLATES = [
 ]
 
 
-WSGI_APPLICATION = 'kogwang.wsgi.application'
+# RESTORED: Points back to your actual folder name on GitHub
+WSGI_APPLICATION = 'agawo_junior.wsgi.application'
 
 
 # =========================
@@ -158,7 +160,6 @@ USE_TZ = True
 
 
 # =========================
-# =========================
 # STATIC FILES (FIXED FOR DJANGO 6.0+)
 # =========================
 STATIC_URL = '/static/'
@@ -168,7 +169,7 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
-# This replaces STATICFILES_STORAGE so your build doesn't crash on Django 6.x
+# Modern storage layout configuration for Django 6.x compatibility
 STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
@@ -194,4 +195,3 @@ LOGIN_URL = '/login/'
 # DEFAULT AUTO FIELD
 # =========================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
