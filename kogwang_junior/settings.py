@@ -86,8 +86,8 @@ MIDDLEWARE = [
 ]
 
 
-# RESTORED: Points back to your actual folder name on GitHub
-ROOT_URLCONF = 'agawo_junior.urls'
+# FIXED: Points to your exact folder name on GitHub
+ROOT_URLCONF = 'kogwang_junior.urls'
 
 
 # =========================
@@ -110,8 +110,8 @@ TEMPLATES = [
 ]
 
 
-# RESTORED: Points back to your actual folder name on GitHub
-WSGI_APPLICATION = 'agawo_junior.wsgi.application'
+# FIXED: Points to your exact folder name on GitHub
+WSGI_APPLICATION = 'kogwang_junior.wsgi.application'
 
 
 # =========================
