@@ -2,7 +2,8 @@ import os
 import django
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'agawo_junior.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'kogwang_junior.settings')
+
 
 # 1. Initialize Django settings modules
 django.setup()
