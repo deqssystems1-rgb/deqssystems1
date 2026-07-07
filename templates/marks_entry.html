@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Include Inter Font for premium typography -->
+<link rel="preconnect" href="https://googleapis.com">
+<link rel="preconnect" href="https://gstatic.com" crossorigin>
+<link href="https://googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --primary: #2563eb;
+        --primary-bg: #eff6ff;
+        --success: #10b981;
+        --success-bg: #ecfdf5;
+        --neutral: #4b5563;
+        --neutral-bg: #f3f4f6;
+        --bg-main: #f8fafc;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+    }
+
+    .portal-wrapper {
+        display: flex;
+        /* ALIGN TO THE LEFT: Positions the card next to your sidebar */
+        justify-content: flex-start;
+        align-items: center;
+        min-height: 80vh;
+        background: radial-gradient(circle at top right, #eff6ff 0%, #f8fafc 100%);
+        /* Generates consistent breathing room between card edges and layout walls */
+        padding: 40px;
+        font-family: 'Inter', -apple-system, sans-serif;
+    }
+
+    .compact-card {
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 
+            0 0 0 1px rgba(15, 23, 42, 0.04),
+            0 20px 25px -5px rgba(15, 23, 42, 0.05), 
+            0 8px 10px -6px rgba(15, 23, 42, 0.05);
+        max-width: 520px;
+        width: 100%;
+    }
+
+    .portal-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .header-icon {
+        width: 52px;
+        height: 52px;
+        background: var(--primary-bg);
+        color: var(--primary);
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+    }
+    .header-icon svg { width: 26px; height: 26px; fill: currentColor; }
+
+    h1 { 
+        color: var(--text-main); 
+        font-size: 1.6rem; 
+        margin-bottom: 6px; 
+        font-weight: 700; 
+        letter-spacing: -0.02em;
+    }
+    
+    p { 
+        color: var(--text-muted); 
+        font-size: 0.9rem; 
+    }
+
+    /* VERTICAL LIST MENU */
+    .button-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 32px;
+    }
+
+    .list-item {
+        display: flex;
+        align-items: center;
+        padding: 16px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid transparent;
+        position: relative;
+    }
+
+    /* Left Icon Container */
+    .item-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 16px;
+        transition: transform 0.2s ease;
+    }
+    .list-item:hover .item-icon {
+        transform: scale(1.05);
+    }
+    .item-icon svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+    }
+
+    /* Text details inside the row */
+    .item-details {
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+    }
+    .item-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    .item-desc {
+        font-size: 0.8rem;
+        margin-top: 2px;
+    }
+
+    /* Right Chevron Arrow */
+    .item-chevron {
+        margin-left: auto;
+        opacity: 0.4;
+        transition: all 0.2s ease;
+    }
+    .item-chevron svg { width: 18px; height: 18px; fill: currentColor; }
+    .list-item:hover .item-chevron {
+        opacity: 1;
+        transform: translateX(3px);
+    }
+
+    /* Color Variant Styles */
+    .green { 
+        background: var(--success-bg); 
+        color: #065f46; 
+        border-color: #d1fae5;
+    }
+    .green .item-icon { background: var(--success); color: white; }
+    .green .item-desc { color: #047857; }
+    .green:hover { background: #d1fae5; }
+
+    .blue { 
+        background: var(--primary-bg); 
+        color: #1e40af; 
+        border-color: #dbeafe;
+    }
+    .blue .item-icon { background: var(--primary); color: white; }
+    .blue .item-desc { color: #1d4ed8; }
+    .blue:hover { background: #dbeafe; }
+
+    .grey { 
+        background: var(--neutral-bg); 
+        color: #1f2937; 
+        border-color: #e5e7eb;
+    }
+    .grey .item-icon { background: var(--neutral); color: white; }
+    .grey .item-desc { color: #4b5563; }
+    .grey:hover { background: #e5e7eb; }
+
+    /* SLIM STATUS BAR */
+    .status-bar {
+        border-top: 1px solid #f1f5f9;
+        padding-top: 24px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .badge {
+        background: #f0fdf4;
+        color: #16a34a;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        border: 1px solid #bbf7d0;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .pulse-dot {
+        width: 6px;
+        height: 6px;
+        background-color: #16a34a;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5); }
+        70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+    }
+</style>
+
+<div class="portal-wrapper">
+    <div class="compact-card">
+        
+        <div class="portal-header">
+            <div class="header-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5.49 12.02L12 15.57l6.51-3.55L12 9l-6.51 3.02zM12 18l-6-3.27v2.41l6 3.27 6-3.27v-2.41L12 18z"/></svg>
+            </div>
+            <h1>Assessment Portal</h1>
+            <p>Select an action below to manage learner records.</p>
+        </div>
+
+        <div class="button-list">
+            
+            <!-- DYNAMIC ROLE ROUTING LINK -->
+            {% if hasattr and request.user.teacher_profile or not request.user.is_superuser and not request.user.is_staff %}
+                <!-- TEACHER LINK -->
+                <a href="{% url 'teacher_dashboard' %}" class="list-item green">
+                    <div class="item-icon">
+                        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                    </div>
+                    <div class="item-details">
+                        <span class="item-title">My Assigned Classes</span>
+                        <span class="item-desc">Manage marks for your courses</span>
+                    </div>
+                    <div class="item-chevron">
+                        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                    </div>
+                </a>
+            {% else %}
+                <!-- ADMIN LINK -->
+                <a href="{% url 'add_mark' %}" class="list-item green">
+                    <div class="item-icon">
+                        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                    </div>
+                    <div class="item-details">
+                        <span class="item-title">Enter Marks (Admin)</span>
+                        <span class="item-desc">Global administrative clearance</span>
+                    </div>
+                    <div class="item-chevron">
+                        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                    </div>
+                </a>
+            {% endif %}
+
+            <!-- VIEW RANK LIST -->
+            {% if request.user.is_superuser or request.user.is_staff %}
+            <a href="{% url 'view_list' %}" class="list-item blue">
+                <div class="item-icon">
+                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                </div>
+                <div class="item-details">
+                    <span class="item-title">Rank List</span>
+                    <span class="item-desc">View student performance positions</span>
+                </div>
+                <div class="item-chevron">
+                    <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                </div>
+            </a>
+            {% endif %}
+
+            <!-- DASHBOARD ROUTING REDIRECTIONS -->
+            {% if hasattr and request.user.teacher_profile %}
+                <a href="{% url 'teacher_dashboard' %}" class="list-item grey">
+            {% else %}
+                <a href="{% url 'dashboard' %}" class="list-item grey">
+            {% endif %}
+                <div class="item-icon">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                </div>
+                <div class="item-details">
+                    <span class="item-title">Dashboard</span>
+                    <span class="item-desc">Return to central application home</span>
+                </div>
+                <div class="item-chevron">
+                    <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                </div>
+            </a>
+            
+        </div>
+
+        <div class="status-bar">
+            System Status: 
+            <span class="badge">
+                <span class="pulse-dot"></span>
+                Term 1, 2026
+            </span>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

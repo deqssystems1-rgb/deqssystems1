@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    text-align: center;
+    color: #3498db;
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.form-row input,
+.form-row select {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    outline: none;
+}
+
+/* Error focus state for duplicate admission fields */
+.input-error {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2 !important;
+}
+
+/* Inline warning message text styling beneath input fields */
+.validation-msg {
+    color: #ef4444;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: -10px;
+    margin-bottom: 15px;
+    display: none;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-add {
+    background: #2ecc71;
+    color: white;
+}
+
+.btn-save {
+    background: #3498db;
+    color: white;
+}
+
+.btn-remove {
+    background: #e74c3c;
+    color: white;
+    padding: 5px 10px;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.table-container {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th {
+    background: #3498db;
+    color: white;
+    padding: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+tr:hover {
+    background: #f9f9f9;
+}
+</style>
+
+<div class="container">
+
+    <h2>Add Students</h2>
+
+    <!-- STUDENT + ADMISSION -->
+    <div class="form-row">
+        <input type="text" id="student_name" placeholder="Student Full Name (e.g. John Mwangi)">
+        <input type="text" id="admission_number" placeholder="Admission No" oninput="checkDuplicateAdmission()">
+    </div>
+    
+    <div id="adm_warning" class="validation-msg">⚠️ This admission number is already on your list below!</div>
+
+    <!-- PARENT + GRADE -->
+    <div class="form-row">
+        <input type="text" id="parent_name" placeholder="Parent Full Name (e.g. Mary Wanjiku)">
+        <input type="text" id="parent_phone" placeholder="Parent Phone Number">
+        <select id="grade">
+            {% for g in grades %}
+                <option value="{{ g }}">{{ g }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div style="display:flex; gap:10px;">
+        <button class="btn-add" onclick="addStudent()">+ Add Student</button>
+        <button class="btn-save" onclick="submitAll()">Save All</button>
+    </div>
+
+    <!-- SCROLLABLE TABLE -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Adm No</th>
+                    <th>Parent Name</th>
+                    <th>Phone</th>
+                    <th>Grade</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="studentTable"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+let students = [];
+let lastAdmission = "";
+let isDuplicate = false; 
+
+// Scanning validation engine checking temporary list rows
+function checkDuplicateAdmission() {
+    let admInput = document.getElementById("admission_number");
+    let warnMsg = document.getElementById("adm_warning");
+    let val = admInput.value.trim();
+
+    if (!val) {
+        admInput.classList.remove("input-error");
+        warnMsg.style.display = "none";
+        isDuplicate = false;
+        return;
+    }
+
+    let localMatch = students.some(s => s.admission_number === val);
+    
+    if (localMatch) {
+        admInput.classList.add("input-error");
+        warnMsg.style.display = "block";
+        isDuplicate = true;
+    } else {
+        admInput.classList.remove("input-error");
+        warnMsg.style.display = "none";
+        isDuplicate = false;
+    }
+}
+
+// Checks database via views.py the instant you click the "+ Add Student" button
+function addStudent() {
+    let student = document.getElementById("student_name").value.trim();
+    let adm = document.getElementById("admission_number").value.trim();
+    let parent = document.getElementById("parent_name").value.trim();
+    let phone = document.getElementById("parent_phone").value.trim();
+    let grade = document.getElementById("grade").value;
+
+    if (!student || !adm) {
+        alert("Please fill Student Name and Admission Number");
+        return;
+    }
+
+    // Instantly catch a duplicate already typed in the lower session list
+    if (isDuplicate || students.some(s => s.admission_number === adm)) {
+        alert("Cannot add: This Admission Number has already been added to your queue below.");
+        return;
+    }
+
+    // Perform an immediate background check on the database before adding row
+    fetch("{% url 'add_students_bulk' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({
+            students: [{admission_number: adm}],
+            is_final_save: false // Tells backend we are just validating a single item
+        })
+    })
+    .then(response => {
+        return response.json().then(data => {
+            if (!response.ok) {
+                throw new Error(data.error);
+            }
+            return data;
+        });
+    })
+    .then(data => {
+        // If database query returns clean, add the student row safely to the staging table view
+        students.push({
+            student_name: student,
+            admission_number: adm,
+            parent_name: parent,
+            parent_phone: phone,
+            grade: grade
+        });
+
+        lastAdmission = adm;
+        students.sort((a, b) => a.student_name.localeCompare(b.student_name));
+
+        renderTable();
+        clearInputs();
+        generateNextAdmission();
+    })
+    .catch(error => {
+        // Triggers the exact multi-line student warning notification popup instantly!
+        alert(error.message);
+        console.error(error);
+    });
+}
+
+// AUTO ADMISSION NUMBER INCREMENTOR
+function generateNextAdmission() {
+    if (!lastAdmission) return;
+
+    let num = parseInt(lastAdmission, 10);
+    if (isNaN(num)) return;
+
+    num += 1;
+
+    let next = String(num).padStart(lastAdmission.length, '0');
+
+    document.getElementById("admission_number").value = next;
+    checkDuplicateAdmission();
+}
+
+// CLEAR FIELD VALUES
+function clearInputs() {
+    document.getElementById("student_name").value = "";
+    document.getElementById("parent_name").value = "";
+    document.getElementById("parent_phone").value = "";
+}
+
+// RENDER FRONTEND DATA TABLE
+function renderTable() {
+    let table = document.getElementById("studentTable");
+    table.innerHTML = "";
+
+    students.forEach((s, index) => {
+        let row = `
+            <tr>
+                <td>${s.student_name}</td>
+                <td>${s.admission_number}</td>
+                <td>${s.parent_name || '-'}</td>
+                <td>${s.parent_phone || '-'}</td>
+                <td>${s.grade}</td>
+                <td>
+                    <button class="btn-remove" onclick="removeStudent(${index})">Remove</button>
+                </td>
+            </tr>
+        `;
+        table.innerHTML += row;
+    });
+}
+
+// REMOVE ROW ITEM
+function removeStudent(index) {
+    students.splice(index, 1);
+    renderTable();
+    checkDuplicateAdmission();
+}
+
+// SUBMIT ALL TO THE MASTER RECORDS DATABASE
+function submitAll() {
+    if (students.length === 0) {
+        alert("No students to save");
+        return;
+    }
+
+    fetch("{% url 'add_students_bulk' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({
+            students: students,
+            is_final_save: true // Tells backend it's safe to write records to the database now
+        })
+    })
+    .then(response => {
+        return response.json().then(data => {
+            if (!response.ok) {
+                throw new Error(data.error || "A processing error occurred on the server.");
+            }
+            return data;
+        });
+    })
+    .then(data => {
+        alert("Students saved successfully!");
+        students = [];
+        renderTable();
+        document.getElementById("admission_number").value = "";
+        checkDuplicateAdmission();
+    })
+    .catch(error => {
+        alert(error.message);
+        console.error(error);
+    });
+}
+</script>
+
+{% endblock %}

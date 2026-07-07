@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Dashboard Page Header Container */
+    .docs-header {
+        margin-bottom: 32px;
+    }
+
+    .docs-header h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -0.5px;
+    }
+
+    .docs-header p {
+        color: var(--muted);
+        margin-top: 6px;
+        font-size: 15px;
+    }
+
+    /* Category Group Row Sections */
+    .category-section {
+        background: white;
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        border: 1px solid var(--border);
+        margin-bottom: 28px;
+    }
+
+    .category-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e3a8a;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 2px solid #eff6ff;
+        padding-bottom: 10px;
+    }
+
+    /* Inner Button Grid Setup */
+    .btn-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 14px;
+    }
+
+    /* Unified Professional Grid Buttons Layout */
+    .download-btn {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.25s ease;
+        border: 1px solid var(--border);
+        background: #f8fafc;
+        cursor: pointer;
+    }
+
+    .download-btn svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+    }
+
+    .download-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+    }
+
+    /* Distinct Dynamic Text & Hover Schemes per Category */
+    .btn-curriculum { color: #1d4ed8; }
+    .btn-curriculum:hover { background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important; color: white !important; }
+
+    .btn-schemes { color: #047857; }
+    .btn-schemes:hover { background: linear-gradient(135deg, #10b981, #047857) !important; color: white !important; }
+
+    .btn-lessons { color: #b45309; }
+    .btn-lessons:hover { background: linear-gradient(135deg, #f59e0b, #b45309) !important; color: white !important; }
+
+    .btn-records { color: #6d28d9; }
+    .btn-records:hover { background: linear-gradient(135deg, #8b5cf6, #6d28d9) !important; color: white !important; }
+
+    .btn-progress { color: #be185d; }
+    .btn-progress:hover { background: linear-gradient(135deg, #ec4899, #be185d) !important; color: white !important; }
+
+    /* ================= POPUP MODAL FORM STYLING ================= */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .modal-box {
+        background: white;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 500px;
+        padding: 32px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        transform: translateY(-20px);
+        transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-box {
+        transform: translateY(0);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 14px;
+    }
+
+    .modal-header h2 {
+        font-size: 20px;
+        font-weight: 800;
+        color: #1e3a8a;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: var(--muted);
+        cursor: pointer;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        font-size: 14px;
+        background-color: #f8fafc;
+        color: var(--text);
+        outline: none;
+        transition: border 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: #2563eb;
+        background-color: #fff;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 10px;
+    }
+
+    .submit-btn:hover {
+        box-shadow: 0 10px 20px rgba(37,99,235,.25);
+        transform: translateY(-1px);
+    }
+</style>
+
+<div class="docs-header">
+    <h1>Professional Documents Hub</h1>
+    <p>Access official KICD curriculum designs, schemes of work, lesson plans, and teaching statutory records.</p>
+</div>
+
+<!-- SECTION 1: CURRICULUM DESIGNS -->
+<div class="category-section">
+    <div class="category-title">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5.47 18.6l6.53 3.56 6.53-3.56v-2.18L12 19.8l-6.53-3.38v2.18z"/></svg>
+        KICD Curriculum Designs
+    </div>
+    <div class="btn-grid">
+        <a href="#" class="download-btn btn-curriculum">
+            <span>Pre-Primary (PP1 & PP2)</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </a>
+        <a href="#" class="download-btn btn-curriculum">
+            <span>Lower Primary (G1 - G3)</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </a>
+        <a href="#" class="download-btn btn-curriculum">
+            <span>Upper Primary (G4 - G6)</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </a>
+        <a href="#" class="download-btn btn-curriculum">
+            <span>Junior Secondary (G7 - G9)</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </a>
+    </div>
+</div>
+
+<!-- SECTION 2: SCHEMES OF WORK -->
+<div class="category-section">
+    <div class="category-title">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        Schemes of Work (Termly Templates)
+    </div>
+    <div class="btn-grid">
+        <a href="#" class="download-btn btn-schemes">
+            <span>Pre-Primary Schemes</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </a>
+        <a href="#" class="download-btn btn-schemes">
+            <span>Lower Primary Schemes</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </a>
+        <a href="#" class="download-btn btn-schemes">
+            <span>Upper Primary Schemes</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </a>
+        <a href="#" class="download-btn btn-schemes">
+            <span>Junior Secondary Schemes</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </a>
+    </div>
+</div>
+
+<!-- SECTION 3: LESSON PLANS -->
+<div class="category-section">
+    <div class="category-title">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+        Lesson Plans & Lesson Notes
+    </div>
+    <div class="btn-grid">
+        <!-- Trigger Modal onClick via JavaScript -->
+        <div class="download-btn btn-lessons" id="triggerLessonModal">
+            <span>Generate lesson plan</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 4: RECORDS OF WORK -->
+<div class="category-section">
+    <div class="category-title">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+        Records of Work Covered
+    </div>
+    <div class="btn-grid">
+        <a href="#" class="download-btn btn-records">
+            <span>Weekly Record Ledger</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </a>
+        <a href="#" class="download-btn btn-records">
+            <span>TSC Professional Logbook</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </a>
+    </div>
+</div>
+
+<!-- SECTION 5: ASSESSMENT & PROGRESS RECORDS -->
+<div class="category-section">
+    <div class="category-title">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 4.36 6 6.92 6 10v5l-2 2v1h16v-1l-2-2z"/></svg>
+        Learner Progress & Assessment Rubrics
+    </div>
+    <div class="btn-grid">
+        <a href="#" class="download-btn btn-progress">
+            <span>CBE Formative Assessment Rubrics</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </a>
+        <a href="#" class="download-btn btn-progress">
+            <span>Learner Individual Profile Log</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </a>
+    </div>
+</div>
+
+<!-- MODAL POPUP FORM -->
+<div class="modal-overlay" id="lessonModalOverlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Configure Lesson Plan</h2>
+            <button class="close-btn" id="closeModalBtn">&times;</button>
+        </div>
+        
+        <form method="POST" action="{% url 'generate_lesson_plan' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="grade">Select Grade</label>
+                <select name="grade" id="grade" class="form-control" required>
+                    <option value="" disabled selected>Select level...</option>
+                    <option value="PP1">Pre-Primary 1 (PP1)</option>
+                    <option value="PP2">Pre-Primary 2 (PP2)</option>
+                    <option value="Grade 1">Grade 1</option>
+                    <option value="Grade 2">Grade 2</option>
+                    <option value="Grade 3">Grade 3</option>
+                    <option value="Grade 4">Grade 4</option>
+                    <option value="Grade 5">Grade 5</option>
+                    <option value="Grade 6">Grade 6</option>
+                    <option value="Grade 7">Grade 7 (JSS)</option>
+                    <option value="Grade 8">Grade 8 (JSS)</option>
+                    <option value="Grade 9">Grade 9 (JSS)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="learning_area">Learning Area (Subject)</label>
+                <select name="learning_area" id="learning_area" class="form-control" required>
+                    <option value="" disabled selected>Select subject...</option>
+                    <option value="Mathematics">Mathematics Activities</option>
+                    <option value="Language">Language / English Activities</option>
+                    <option value="Kiswahili">Kiswahili Activities</option>
+                    <option value="Environmental">Environmental Activities</option>
+                    <option value="Creative">Creative Arts & Sports</option>
+                    <option value="Religious">Religious Education (CRE/IRE)</option>
+                    <option value="Science">Integrated Science (JSS)</option>
+                    <option value="Social Studies">Social Studies (JSS)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="book_type">Type of Book (Course Material)</label>
+                <select name="book_type" id="book_type" class="form-control" required>
+                    <option value="" disabled selected>Select material reference...</option>
+                    <option value="KLB">Kenya Literature Bureau (KLB Top Scholar)</option>
+                    <option value="Longhorn">Longhorn Publishers</option>
+                    <option value="Oxford">Oxford University Press</option>
+                    <option value="Moran">Moran Publishers</option>
+                    <option value="Spotlight">Spotlight CBC Course Book</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn">Generate</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Handle opening and closing the modal form
+    const overlay = document.getElementById('lessonModalOverlay');
+    const trigger = document.getElementById('triggerLessonModal');
+    const closeBtn = document.getElementById('closeModalBtn');
+
+    trigger.addEventListener('click', () => {
+        overlay.classList.add('active');
+    });
+
+    closeBtn.addEventListener('click', () => {
+        overlay.classList.remove('active');
+    });
+
+    // Close if user clicks background overlay area
+    overlay.addEventListener('click', (e) => {
+        if(e.target === overlay) {
+            overlay.classList.remove('active');
+        }
+    });
+</script>
+{% endblock %}

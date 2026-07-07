@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Ranking Report</title>
+
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #333;
+            font-size: 9pt;
+        }
+
+        /* HEADER */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-bottom: 2px solid #1565c0;
+            margin-bottom: 15px;
+        }
+
+        .header-table td {
+            border: none;
+            vertical-align: middle;
+        }
+
+        .logo-cell {
+            width: 120px;
+            text-align: left;
+        }
+
+        .logo {
+            width: 90px;
+            height: auto;
+        }
+
+        .school-info {
+            text-align: center;
+        }
+
+        .school-name {
+            font-size: 18pt;
+            color: #1565c0;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .report-title {
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background-color: #1565c0;
+            color: white;
+            padding: 6px;
+            text-transform: uppercase;
+            font-size: 8pt;
+            border: 1px solid #0d47a1;
+        }
+
+        td {
+            border: 1px solid #cccccc;
+            padding: 5px;
+            text-align: center;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .top-rank {
+            background-color: #e3f2fd;
+        }
+
+        .total-cell {
+            font-weight: bold;
+            color: #1565c0;
+            background-color: #f5f5f5;
+        }
+
+        .rubric-small {
+            display: block;
+            font-size: 7pt;
+            font-weight: bold;
+            color: #1565c0;
+            margin-top: 1px;
+        }
+
+        .footer {
+            margin-top: 25px;
+            font-size: 8pt;
+        }
+
+        .signature-box {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .signature-box td {
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- HEADER WITH LOGO -->
+<table class="header-table">
+    <tr>
+
+        <td class="logo-cell">
+            <img src="{{ logo_url }}" class="logo">
+        </td>
+
+        <td class="school-info">
+            <div class="school-name">
+                AGAWO JUNIOR SECONDARY SCHOOL
+            </div>
+
+            <div class="report-title">
+                PERFORMANCE RANKING REPORT
+            </div>
+
+            <p>
+                <strong>Grade:</strong> {{ grade }}
+                &nbsp;&nbsp;|
+                &nbsp;&nbsp;<strong>Term:</strong> {{ term }}
+                &nbsp;&nbsp;|
+                &nbsp;&nbsp;<strong>Year:</strong> {{ year }}
+            </p>
+        </td>
+
+    </tr>
+</table>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width:30px;">Pos</th>
+            <th style="width:70px;">Adm No.</th>
+            <th class="text-left" style="width:150px;">Student Name</th>
+
+            {% for subject in subjects %}
+            <th>{{ subject }}</th>
+            {% endfor %}
+
+            <th style="width:50px;">Total</th>
+            <th style="width:50px;">Grade</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for entry in students %}
+        <tr class="{% if entry.rank <= 3 %}top-rank{% endif %}">
+
+            <td><strong>{{ entry.rank }}</strong></td>
+
+            <td>{{ entry.admission_number }}</td>
+
+            <td class="text-left">
+                {{ entry.student.student_name|upper }}
+            </td>
+
+            {% for item in entry.subject_marks %}
+            <td>
+                {% if item.score is not None %}
+                    {{ item.score }}
+                    <span class="rubric-small">
+                        {{ item.rubric }}
+                    </span>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            {% endfor %}
+
+            <td class="total-cell">
+                {{ entry.total }}
+            </td>
+
+            <td style="font-weight:bold;">
+                {{ entry.total_rubrics }}
+            </td>
+
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="20">
+                No student records found for this selection.
+            </td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
+
+<div class="footer">
+
+    <table class="signature-box">
+        <tr>
+            <td style="text-align:left;">
+                Report Generated: {% now "jS F Y" %}
+            </td>
+
+            <td style="text-align:right;">
+                Principal's Signature: ____________________
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+</body>
+</html>

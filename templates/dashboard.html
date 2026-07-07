@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* ================= PAGE ================= */
+body{
+    background:linear-gradient(135deg,#eff6ff 0%,#f8fafc 50%,#eef2ff 100%);
+    font-family:Segoe UI,Tahoma,sans-serif;
+}
+
+.portal-main{
+    max-width:1200px;
+    margin:25px auto;
+    padding:0 18px;
+}
+
+/* ================= HEADER ================= */
+.dashboard-header{
+    background:linear-gradient(135deg,#1e40af,#2563eb,#7c3aed);
+    border-radius:24px;
+    padding:36px 20px;
+    margin-bottom:24px;
+    text-align:center;
+    color:white;
+    box-shadow:0 20px 40px rgba(37,99,235,.25);
+}
+
+.school-name{
+    margin:0;
+    font-size:34px;
+    font-weight:900;
+    text-transform:uppercase;
+    letter-spacing:2px;
+}
+
+.school-sub{
+    margin-top:10px;
+    font-size:14px;
+    color:rgba(255,255,255,.9);
+}
+
+.title-line{
+    width:100px;
+    height:4px;
+    background:white;
+    margin:16px auto 0;
+    border-radius:50px;
+}
+
+/* ================= SECTION ================= */
+.section-title{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:1.2px;
+    color:#475569;
+    font-weight:800;
+    margin:20px 0 14px;
+}
+
+/* ================= MODULES ================= */
+.quick-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:10px;
+    margin-bottom:24px;
+}
+
+.quick-card{
+    background:#fff;
+    border-radius:16px;
+    padding:14px;
+    text-decoration:none;
+    color:#111827;
+    box-shadow:0 8px 20px rgba(0,0,0,.06);
+    position:relative;
+    transition:.3s ease;
+    overflow:hidden;
+}
+
+.quick-card::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:5px;
+}
+
+/* individual colors */
+.quick-card:nth-child(1)::before{background:linear-gradient(90deg,#10b981,#34d399);}
+.quick-card:nth-child(2)::before{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+.quick-card:nth-child(3)::before{background:linear-gradient(90deg,#7c3aed,#a855f7);}
+.quick-card:nth-child(4)::before{background:linear-gradient(90deg,#2563eb,#60a5fa);}
+.quick-card:nth-child(5)::before{background:linear-gradient(90deg,#f97316,#fb923c);}
+.quick-card:nth-child(6)::before{background:linear-gradient(90deg,#0891b2,#06b6d4);}
+.quick-card:nth-child(7)::before{background:linear-gradient(90deg,#dc2626,#ef4444);}
+
+.quick-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 16px 30px rgba(37,99,235,.18);
+}
+
+.quick-icon{
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:6px;
+    font-size:14px;
+}
+
+.green{background:#dcfce7;color:#15803d;}
+.orange{background:#fef3c7;color:#b45309;}
+.blue{background:#dbeafe;color:#1d4ed8;}
+.red{background:#fee2e2;color:#b91c1c;}
+.purple{background:#ede9fe;color:#6b21a8;}
+
+.quick-title{
+    font-size:12px;
+    font-weight:800;
+}
+
+.quick-sub{
+    font-size:10px;
+    color:#64748b;
+}
+
+/* ================= GRADE PANEL ================= */
+.grade-panel{
+    background:#fff;
+    border-radius:22px;
+    padding:24px;
+    box-shadow:0 12px 28px rgba(0,0,0,.06);
+}
+
+.grade-groups{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:18px;
+}
+
+/* colored sections */
+.group-box{
+    border-radius:16px;
+    padding:18px;
+    transition:.25s ease;
+}
+
+.group-box:hover{
+    transform:translateY(-3px);
+}
+
+/* LOWER PRIMARY */
+.group-box:nth-child(1){
+    border-left:6px solid #2563eb;
+    background:#f8fbff;
+}
+
+/* UPPER PRIMARY */
+.group-box:nth-child(2){
+    border-left:6px solid #10b981;
+    background:#f0fdf4;
+}
+
+/* JUNIOR SCHOOL */
+.group-box:nth-child(3){
+    border-left:6px solid #7c3aed;
+    background:#faf5ff;
+}
+
+.group-head{
+    font-size:14px;
+    font-weight:900;
+    margin-bottom:12px;
+}
+
+.grade-list{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+}
+
+.grade-card{
+    text-decoration:none;
+    color:white;
+    text-align:center;
+    padding:12px;
+    border-radius:10px;
+    font-weight:800;
+    transition:.2s;
+}
+
+.grade-card:hover{
+    transform:scale(1.05);
+}
+
+/* GRADES */
+.g1{background:#e11d48;}
+.g2{background:#9333ea;}
+.g3{background:#7c3aed;}
+.g4{background:#2563eb;}
+.g5{background:#0284c7;}
+.g6{background:#0891b2;}
+.g7{background:#059669;}
+.g8{background:#16a34a;}
+.g9{background:#ea580c;}
+
+/* FOOTER */
+.footer-note{
+    text-align:center;
+    margin-top:24px;
+    font-size:12px;
+    color:#64748b;
+}
+
+/* RESPONSIVE */
+@media(max-width:992px){
+    .quick-grid{grid-template-columns:repeat(4,1fr);}
+}
+
+@media(max-width:768px){
+    .school-name{font-size:24px;}
+    .quick-grid{grid-template-columns:repeat(2,1fr);}
+    .grade-list{grid-template-columns:1fr;}
+}
+</style>
+
+<div class="portal-main">
+
+    <!-- HEADER -->
+    <div class="dashboard-header">
+        <h1 class="school-name">OBISA COMPREHENSIVE SCHOOL</h1>
+        <div class="school-sub">Smart School Dashboard • CBC Kenya System</div>
+        <div class="title-line"></div>
+    </div>
+
+    <!-- MODULES -->
+    <div class="section-title">Main Modules</div>
+
+    <div class="quick-grid">
+
+        <a href="{% url 'add_mark' %}" class="quick-card">
+            <div class="quick-icon green">📊</div>
+            <div class="quick-title">Assessment</div>
+            <div class="quick-sub">Marks entry</div>
+        </a>
+
+        <a href="{% url 'teachers' %}" class="quick-card">
+            <div class="quick-icon orange">👩‍🏫</div>
+            <div class="quick-title">Teachers</div>
+            <div class="quick-sub">Staff roster</div>
+        </a>
+
+        <a href="{% url 'lesson_allocation' %}" class="quick-card">
+            <div class="quick-icon purple">🗺️</div>
+            <div class="quick-title">Allocations</div>
+            <div class="quick-sub">Assign classes</div>
+        </a>
+
+        <a href="{% url 'library' %}" class="quick-card">
+            <div class="quick-icon blue">📚</div>
+            <div class="quick-title">Library</div>
+            <div class="quick-sub">Books records</div>
+        </a>
+
+        <a href="{% url 'reports' %}" class="quick-card">
+            <div class="quick-icon orange">📄</div>
+            <div class="quick-title">Reports</div>
+            <div class="quick-sub">Print reports</div>
+        </a>
+
+        <a href="{% url 'fees' %}" class="quick-card">
+            <div class="quick-icon blue">💰</div>
+            <div class="quick-title">Finance</div>
+            <div class="quick-sub">Fee tracking</div>
+        </a>
+
+        <a href="{% url 'logout' %}" class="quick-card">
+            <div class="quick-icon red">🚪</div>
+            <div class="quick-title">Logout</div>
+            <div class="quick-sub">Secure exit</div>
+        </a>
+
+    </div>
+
+    <!-- GRADE LEVELS -->
+    <div class="section-title">Learner Levels</div>
+
+    <div class="grade-panel">
+
+        <div class="grade-groups">
+
+            <div class="group-box">
+                <div class="group-head">Lower Primary</div>
+                <div class="grade-list">
+                    <a href="{% url 'grade_students' 1 %}" class="grade-card g1">Grade 1</a>
+                    <a href="{% url 'grade_students' 2 %}" class="grade-card g2">Grade 2</a>
+                    <a href="{% url 'grade_students' 3 %}" class="grade-card g3">Grade 3</a>
+                </div>
+            </div>
+
+            <div class="group-box">
+                <div class="group-head">Upper Primary</div>
+                <div class="grade-list">
+                    <a href="{% url 'grade_students' 4 %}" class="grade-card g4">Grade 4</a>
+                    <a href="{% url 'grade_students' 5 %}" class="grade-card g5">Grade 5</a>
+                    <a href="{% url 'grade_students' 6 %}" class="grade-card g6">Grade 6</a>
+                </div>
+            </div>
+
+            <div class="group-box">
+                <div class="group-head">Junior School</div>
+                <div class="grade-list">
+                    <a href="{% url 'grade_students' 7 %}" class="grade-card g7">Grade 7</a>
+                    <a href="{% url 'grade_students' 8 %}" class="grade-card g8">Grade 8</a>
+                    <a href="{% url 'grade_students' 9 %}" class="grade-card g9">Grade 9</a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer-note">
+        Powered by Deqs Sytems 
+    </div>
+
+</div>
+
+{% endblock %}

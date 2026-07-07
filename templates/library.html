@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% csrf_token %}
+
+<style>
+    /* ===== PROFESSIONAL UI REFINEMENTS ===== */
+    .library-wrap { max-width: 1200px; margin: auto; padding: 20px; font-family: 'Inter', sans-serif; }
+    
+    .lib-header { 
+        display: flex; justify-content: space-between; align-items: center; 
+        margin-bottom: 25px; background: white; padding: 20px 30px; 
+        border-radius: 12px; border: 1px solid #e5e7eb;
+    }
+
+    .library-card { background: white; border: 1px solid #e5e7eb; padding: 30px; border-radius: 12px; }
+
+    /* Compact Form Layout */
+    .form-grid { 
+        display: grid; 
+        grid-template-columns: 100px 120px 140px 120px 1.5fr 60px 120px auto; 
+        gap: 8px; 
+        margin-bottom: 30px; 
+        align-items: end; 
+    }
+    .form-group label { font-size: 9px; font-weight: 700; color: #6b7280; text-transform: uppercase; margin-bottom: 6px; display: block; }
+    .form-group select, .form-group input { 
+        width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; 
+        background: #f9fafb; font-size: 12px; outline: none;
+    }
+
+    /* Buttons */
+    .btn-action { padding: 10px 15px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; border: none; transition: 0.2s; }
+    .btn-primary { background: #2563eb; color: white; }
+    
+    /* Table Design */
+    .table-container { margin-top: 20px; border-radius: 8px; border: 1px solid #eee; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8fafc; padding: 12px 15px; text-align: left; color: #475569; font-size: 11px; text-transform: uppercase; }
+    td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    
+    .status { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; }
+    .status.borrowed { background: #eff6ff; color: #1d4ed8; }
+    .status.returned { background: #f0fdf4; color: #15803d; }
+    .status.overdue { background: #fef2f2; color: #dc2626; }
+
+    .btn-receive { 
+        background: white; color: #10b981; border: 1px solid #10b981; 
+        padding: 5px 12px; border-radius: 6px; font-weight: 600; cursor: pointer;
+    }
+</style>
+
+<div class="library-wrap">
+    <div class="lib-header">
+        <div>
+            <h1 style="margin:0; font-size:22px; font-weight:800;">Library Circulation</h1>
+            <p style="margin:5px 0 0 0; color:#64748b; font-size:13px;">Sync with Students & Staff Registry</p>
+        </div>
+        <a href="{% url 'manage_books' %}" class="btn-action btn-primary" style="text-decoration:none;">📦 Manage Inventory</a>
+    </div>
+
+    <div class="library-card">
+        <!-- 📝 ISSUE FORM -->
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Category</label>
+                <select id="memberType" onchange="toggleGradeBox()">
+                    <option value="Student">Student</option>
+                    <option value="Teacher">Teacher</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="gradeFilterBox">
+                <label>Member Grade</label>
+                <select id="gradeFilter" onchange="loadMembers()">
+                    <option value="All">All Grades</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Name</label>
+                <select id="memberName"><option value="">Select Member</option></select>
+            </div>
+
+            <div class="form-group">
+                <label>Book Grade</label>
+                <select id="bookGradeFilter" onchange="loadBooks()">
+                    <option value="All">All Grades</option>
+                    {% for i in "123456789"|make_list %}
+                    <option value="Grade {{ i }}">Grade {{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Choose Book (Title — Author)</label>
+                <select id="bookName"><option value="">Select Book</option></select>
+            </div>
+
+            <div class="form-group">
+                <label>Qty</label>
+                <input type="number" id="borrowQty" value="1" min="1">
+            </div>
+
+            <div class="form-group">
+                <label>Due Date</label>
+                <input type="date" id="dueDate">
+            </div>
+
+            <button class="btn-action btn-primary" onclick="borrowBook()">Issue</button>
+        </div>
+
+        <input type="text" id="tableSearch" placeholder="Search by name or book..." 
+               style="width:100%; padding:12px; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:15px; outline:none;">
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Recipient</th>
+                        <th>Book Details</th>
+                        <th style="text-align:center;">Qty</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th style="text-align:right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{{ books|json_script:"books-data" }}
+{{ records|json_script:"records-data" }}
+
+<script>
+    const getInjectedData = (id) => JSON.parse(document.getElementById(id).textContent || "[]");
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        document.getElementById("dueDate").valueAsDate = nextWeek;
+        
+        setupMemberGrades();
+        loadMembers();
+        loadBooks();
+        renderTable();
+
+        document.getElementById('tableSearch').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none';
+            });
+        });
+    });
+
+    function setupMemberGrades() {
+        const students = JSON.parse(localStorage.getItem('library_students')) || [];
+        const uniqueGrades = [...new Set(students.map(s => s.grade))].filter(g => g).sort();
+        const filter = document.getElementById("gradeFilter");
+        uniqueGrades.forEach(g => {
+            filter.innerHTML += `<option value="${g}">${g}</option>`;
+        });
+    }
+
+    function toggleGradeBox() {
+        const type = document.getElementById("memberType").value;
+        document.getElementById("gradeFilterBox").style.visibility = (type === "Teacher") ? "hidden" : "visible";
+        loadMembers();
+    }
+
+    function loadMembers() {
+        const type = document.getElementById("memberType").value;
+        const grade = document.getElementById("gradeFilter").value;
+        const select = document.getElementById("memberName");
+        
+        let list = [];
+        if (type === "Student") {
+            list = JSON.parse(localStorage.getItem('library_students')) || [];
+            if (grade !== "All") list = list.filter(s => s.grade === grade);
+        } else {
+            const raw = localStorage.getItem('library_teachers') || localStorage.getItem('masterTeachers');
+            list = JSON.parse(raw || "[]");
+        }
+
+        let opts = '<option value="">Select Member</option>';
+        list.forEach(m => {
+            let name = (typeof m === 'string') ? m : (m.student_name || m.name);
+            if (name) opts += `<option value="${name}">${name}</option>`;
+        });
+        select.innerHTML = opts;
+    }
+
+    function loadBooks() {
+        const select = document.getElementById("bookName");
+        const filterGrade = document.getElementById("bookGradeFilter").value;
+        const books = getInjectedData("books-data");
+        
+        let opts = '<option value="">Select Book</option>';
+        books.forEach(b => {
+            if (filterGrade === "All" || b.grade === filterGrade) {
+                const stock = b.available_copies;
+                // ADDED: Author displayed in dropdown to avoid confusion between publishers
+                const authorInfo = b.author ? ` — [${b.author}]` : "";
+                
+                opts += `<option value="${b.title}" ${stock < 1 ? 'disabled' : ''}>
+                    ${b.title}${authorInfo} (${stock} left)
+                </option>`;
+            }
+        });
+        select.innerHTML = opts;
+    }
+
+    async function apiCall(payload) {
+        const res = await fetch("/library/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token }}" },
+            body: JSON.stringify(payload)
+        });
+        if (res.ok) location.reload();
+        else { const err = await res.json(); alert(err.error || "Failed"); }
+    }
+
+    function borrowBook() {
+        const payload = {
+            action: "borrow",
+            member_name: document.getElementById("memberName").value,
+            member_type: document.getElementById("memberType").value,
+            book_name: document.getElementById("bookName").value,
+            copies: document.getElementById("borrowQty").value,
+            due_date: document.getElementById("dueDate").value
+        };
+        if (!payload.member_name || !payload.book_name) return alert("Select Name and Book");
+        apiCall(payload);
+    }
+
+    function renderTable() {
+        const records = getInjectedData("records-data");
+        const tbody = document.getElementById("tableBody");
+        
+        if (!tbody || records.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">No circulation records found.</td></tr>';
+            return;
+        }
+
+        let lastRecipient = ""; 
+
+        tbody.innerHTML = records.map(r => {
+            const name = r.member_name || "N/A";
+            const type = r.member_type || "N/A";
+            const title = r.book__title || "Unknown Book";
+            const qty = r.copies || 0;
+            const due = r.due_date || "---";
+            const status = r.status || "Borrowed";
+
+            let nameDisplay = "";
+            let rowStyle = "";
+
+            if (name !== lastRecipient) {
+                nameDisplay = `<strong>${name}</strong><br><small style="color:#64748b">${type}</small>`;
+                lastRecipient = name;
+                rowStyle = "border-top: 2px solid #f1f5f9;";
+            } else {
+                nameDisplay = `<span style="color:#cbd5e1; padding-left:15px;">↳</span>`;
+            }
+
+            return `
+                <tr style="${rowStyle}">
+                    <td style="vertical-align: top; padding-top: 15px;">${nameDisplay}</td>
+                    <td>${title}</td>
+                    <td style="text-align:center;">${qty}</td>
+                    <td>${due}</td>
+                    <td><span class="status ${status.toLowerCase()}">${status}</span></td>
+                    <td style="text-align:right;">
+                        ${status !== 'Returned' ? `<button class="btn-receive" onclick="returnBook(${r.id})">Return</button>` : '---'}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function returnBook(id) {
+        if(confirm("Confirm return?")) apiCall({ action: "return", record_id: id });
+    }
+</script>
+
+{% endblock %}

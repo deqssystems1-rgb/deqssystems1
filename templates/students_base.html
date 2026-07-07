@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>{% block title %}Agawo School System | Student Portal{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            height: 100%;
+            overflow-y: auto;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-[#F4F6F9] min-h-screen text-slate-800 font-sans flex">
+
+    <!-- LEFT SIDEBAR NAVIGATION BLOCK (Updated to Academic Green Theme) -->
+    <aside class="w-64 bg-gradient-to-b from-[#1E5631] via-[#2E8B57] to-[#34A853]/10 min-h-screen p-4 flex flex-col gap-6 shrink-0 shadow-lg z-20">
+        <!-- Sidebar Brand Title -->
+        <div class="px-3 py-2 text-white text-center">
+            <h2 class="text-xl font-bold tracking-wide leading-tight">Agawo School<br>System</h2>
+        </div>
+
+        <!-- Sidebar Interactive Navigation Links -->
+        <div class="flex flex-col gap-2">
+            <!-- Dashboard Link with Smart Active Overrides -->
+            <a href="{% url 'students_portal' %}" class="flex items-center gap-3 {% block dashboard_active %}bg-white text-[#1E5631] font-bold shadow-sm{% endblock %} px-4 py-3 rounded-xl text-sm transition">
+                <span>🏠</span> Dashboard
+            </a>
+            <a href="#" class="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl font-medium text-sm transition">
+                <span>📊</span> Notes Registry
+            </a>
+            
+            <!-- STEP 3 IMPLEMENTED: Connected the Digital Library Route with Dynamic Active State Blocks -->
+            <a href="{% url 'digital_library' %}" class="flex items-center gap-3 {% block library_active %}text-white/90 hover:bg-white/10 font-medium{% endblock %} px-4 py-3 rounded-xl text-sm transition">
+                <span>📖</span> Library Hub
+            </a>
+            
+            <a href="#" class="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl font-medium text-sm transition">
+                <span>📄</span> Research Papers
+            </a>
+            <a href="#" class="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl font-medium text-sm transition">
+                <span>💳</span> Fee Structures
+            </a>
+            <!-- Updated to point back to the home screen -->
+            <a href="/" class="flex items-center gap-3 text-white/90 hover:bg-white/10 px-4 py-3 rounded-xl font-medium text-sm mt-8 border-t border-white/10 pt-4 transition">
+                <span>⬅️</span> Back to Login
+            </a>
+        </div>
+    </aside>
+
+    <!-- RIGHT MAIN CONTENT WORKSPACE AREA CANVAS -->
+    <main class="flex-1 p-6 md:p-8 overflow-y-auto">
+        {% block content %}
+        <!-- Child components inject markup structures directly here -->
+        {% endblock %}
+    </main>
+
+</body>
+</html>

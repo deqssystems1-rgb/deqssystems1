@@ -1,0 +1,62 @@
+{% extends 'students_base.html' %}
+
+{% block title %}Digital Library Catalog | Agawo School{% endblock %}
+
+<!-- 1. THIS TURNS OFF THE DEFAULT DASHBOARD WHITE HIGHLIGHT -->
+{% block dashboard_active %}text-white/90 hover:bg-white/10 font-medium{% endblock %}
+
+<!-- 2. THIS TURNS ON THE WHITE HIGHLIGHT FOR THE LIBRARY HUB LINK -->
+{% block library_active %}bg-white text-[#1E5631] font-bold shadow-sm{% endblock %}
+
+{% block content %}
+<!-- Header Card Section -->
+<div class="bg-white border border-slate-100 rounded-3xl p-6 mb-8 shadow-xs flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-black text-[#111827] tracking-tight uppercase">
+            AGAWO DIGITAL LIBRARY
+        </h1>
+        <p class="text-xs text-slate-400 font-semibold tracking-wider uppercase mt-1">
+            Open Repository Center • Public Reference Vault
+        </p>
+    </div>
+    <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1.5 rounded-lg border border-emerald-200">
+        4 Active Books Cataloged
+    </span>
+</div>
+
+<!-- Library Catalog Matrix Layout Table -->
+<div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+            <thead>
+                <tr class="bg-slate-50 text-slate-500 font-bold border-b border-slate-100 text-xs uppercase tracking-wider">
+                    <th class="p-4">Publication Title</th>
+                    <th class="p-4">Subject Track</th>
+                    <th class="p-4">Format Type</th>
+                    <th class="p-4 text-right">Action Threshold</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
+                {% for book in catalog %}
+                <tr class="hover:bg-slate-50/50 transition">
+                    <td class="p-4 text-slate-900 font-bold">{{ book.title }}</td>
+                    <td class="p-4"><span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-xs">{{ book.subject }}</span></td>
+                    <td class="p-4 text-slate-400 font-mono text-xs">{{ book.type }} ({{ book.size }})</td>
+                    <td class="p-4 text-right">
+                        <button onclick="alert('Initializing download stream layer...')" class="bg-[#1E5631] hover:bg-[#2E8B57] text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-xs">
+                            📥 Download PDF
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="p-8 text-center text-slate-400 font-medium">
+                        No resource items currently cataloged in this repository stream track.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

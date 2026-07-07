@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    /* UI STYLES (SCREEN ONLY) */
+    .manage-wrap { max-width: 1100px; margin: auto; padding: 20px; font-family: 'Inter', sans-serif; }
+    .manage-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .manage-header h1 { font-size: 24px; font-weight: 800; color: #111827; margin: 0; }
+    .btn-back { padding: 8px 16px; background: #f3f4f6; color: #374151; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; border: 1px solid #d1d5db; }
+
+    .manage-card { background: white; border: 1px solid #e5e7eb; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; }
+    .form-title { font-size: 14px; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 15px; display: block; }
+    
+    .manage-form { display: grid; grid-template-columns: 2fr 1fr 1fr 100px auto; gap: 15px; align-items: end; }
+    .form-group label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 6px; display: block; }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; outline: none; font-size: 14px; background: white; }
+    
+    .btn-save { padding: 11px 20px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    .btn-print { padding: 11px 20px; background: #6366f1; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-left: 10px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 15px; background: #f9fafb; color: #6b7280; font-size: 11px; text-transform: uppercase; border-bottom: 1px solid #eee; }
+    td { padding: 15px; border-bottom: 1px solid #f3f4f6; font-size: 14px; color: #374151; }
+    
+    .stock-badge { padding: 4px 8px; background: #eff6ff; color: #1d4ed8; border-radius: 6px; font-weight: 700; font-size: 12px; }
+    .btn-delete { color: #ef4444; text-decoration: none; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px; border: 1px solid #fee2e2; }
+    .btn-edit { color: #2563eb; text-decoration: none; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px; border: 1px solid #dbeafe; margin-right: 5px; cursor: pointer; }
+
+    .search-bar { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e5e7eb; margin-bottom: 15px; outline: none; }
+
+    /* PRINT-ONLY LOGIC */
+    @media print {
+        body * { visibility: hidden; }
+        .print-section, .print-section * { visibility: visible; }
+        .print-section { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; }
+        .search-bar, .no-print, .btn-print, .btn-back { display: none !important; }
+        .manage-card { border: none !important; box-shadow: none !important; }
+        th { background: #eee !important; color: #000 !important; -webkit-print-color-adjust: exact; }
+        td { border-bottom: 1px solid #ddd !important; }
+    }
+</style>
+
+<div class="manage-wrap">
+    <div class="manage-header">
+        <h1>📦 Inventory Manager</h1>
+        <div>
+            <a href="{% url 'library' %}" class="btn-back">← Back</a>
+            <button onclick="window.print()" class="btn-print">🖨️ Print Inventory</button>
+        </div>
+    </div>
+
+    <!-- ADD BOOK SECTION -->
+    <div class="manage-card">
+        <span class="form-title">Register New Stock</span>
+        <form method="POST" class="manage-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add">
+            <div class="form-group">
+                <label>Book Title / Subject</label>
+                <input type="text" name="title" required>
+            </div>
+            <div class="form-group">
+                <label>Author / Publisher</label>
+                <input type="text" name="author">
+            </div>
+            <div class="form-group">
+                <label>Grade Level</label>
+                <select name="grade">
+                    <option value="">Select Grade</option>
+                    {% for i in "123456789"|make_list %}
+                    <option value="Grade {{ i }}">Grade {{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Quantity</label>
+                <input type="number" name="copies" value="1" min="1">
+            </div>
+            <button type="submit" class="btn-save">Add Book</button>
+        </form>
+    </div>
+
+    <!-- INVENTORY TABLE -->
+    <div class="manage-card print-section">
+        <span class="form-title">Current Library Inventory</span>
+        <input type="text" id="bookSearch" class="search-bar" placeholder="Filter books...">
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Author</th>
+                    <th>Grade</th>
+                    <th>Stock (Available/Total)</th>
+                    <th class="no-print" style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="bookBody">
+                {% for book in books %}
+                <tr class="book-row">
+                    <td class="b-title"><strong>{{ book.title }}</strong></td>
+                    <td class="b-author">{{ book.author|default:"" }}</td>
+                    <td class="b-grade">{{ book.grade|default:"" }}</td>
+                    <td><span class="stock-badge">{{ book.available_copies }} / {{ book.total_copies }}</span></td>
+                    <td class="no-print" style="text-align: right;">
+                        <!-- Added escapejs template tags to secure strings with punctuation -->
+                        <span class="btn-edit" onclick="openEditModal('{{ book.id }}', '{{ book.title|escapejs }}', '{{ book.author|escapejs }}', '{{ book.grade|escapejs }}', '{{ book.total_copies }}')">Edit</span>
+                        <a href="{% url 'delete_book' book.id %}" class="btn-delete" onclick="return confirm('Delete this book?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- EDIT BOOK MODAL OVERLAY -->
+<div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
+    <div style="background: white; padding: 25px; border-radius: 16px; width: 100%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+        <span class="form-title" style="margin-bottom: 20px;">Edit Book Details</span>
+        
+        <form method="POST" action="">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="edit">
+            <input type="hidden" name="edit_id" id="edit_id">
+            
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 6px; display: block;">Book Title / Subject</label>
+                <input type="text" name="title" id="edit_title" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; outline: none; font-size: 14px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 6px; display: block;">Author / Publisher</label>
+                <input type="text" name="author" id="edit_author" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; outline: none; font-size: 14px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 6px; display: block;">Grade Level</label>
+                <select name="grade" id="edit_grade" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; outline: none; font-size: 14px; background: white;">
+                    <option value="">Select Grade</option>
+                    {% for i in "123456789"|make_list %}
+                    <option value="Grade {{ i }}">Grade {{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 6px; display: block;">Total Quantity</label>
+                <input type="number" name="copies" id="edit_copies" min="1" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; outline: none; font-size: 14px;">
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="closeModal()" style="padding: 10px 15px; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; font-weight: 600; color: #374151; font-size: 13px;">Cancel</button>
+                <button type="submit" class="btn-save" style="padding: 10px 15px; font-size: 13px;">Update Book</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEditModal(id, title, author, grade, copies) {
+        document.getElementById('edit_id').value = id;
+        document.getElementById('edit_title').value = title;
+        document.getElementById('edit_author').value = (author === 'None' || author === '') ? '' : author;
+        document.getElementById('edit_grade').value = (grade === 'None' || grade === '') ? '' : grade;
+        document.getElementById('edit_copies').value = copies;
+
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+	.container-dashboard{
+	max-width:1200px;
+	margin:auto;
+	padding:20px;
+	}
+
+	/* HEADER */
+	.welcome{
+	font-size:28px;
+	font-weight:700;
+	color:#1565c0;
+	margin-bottom:8px;
+	text-align:center;
+	}
+
+	.subtitle{
+	color:#546e7a;
+	margin-bottom:25px;
+	text-align:center;
+	font-size:15px;
+	}
+
+	/* QUICK ACTIONS */
+	.quick-links{
+	display:grid;
+	grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+	gap:15px;
+	margin-bottom:30px;
+	}
+
+	.quick-btn{
+	background:linear-gradient(135deg,#43cea2,#185a9d);
+	color:white;
+	padding:14px;
+	border-radius:10px;
+	text-align:center;
+	text-decoration:none;
+	font-weight:600;
+	font-size:14px;
+	transition:0.3s ease;
+	box-shadow:0 3px 8px rgba(0,0,0,0.1);
+	}
+
+	.quick-btn:hover{
+	transform:translateY(-4px);
+	box-shadow:0 6px 12px rgba(0,0,0,0.15);
+	}
+
+	/* SECTION TITLE */
+	.group-title{
+	margin-top:20px;
+	margin-bottom:12px;
+	font-weight:700;
+	font-size:18px;
+	color:#2c3e50;
+	border-left:4px solid #1565c0;
+	padding-left:8px;
+	}
+
+	/* GRADES GRID */
+	.grades{
+	display:grid;
+	grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+	gap:15px;
+	}
+
+	/* GRADE CARDS */
+	.grade-btn{
+	color:white;
+	padding:16px;
+	text-align:center;
+	border-radius:10px;
+	text-decoration:none;
+	font-size:15px;
+	font-weight:600;
+	transition:0.3s ease;
+	box-shadow:0 3px 8px rgba(0,0,0,0.1);
+	}
+
+	.grade-btn:hover{
+	transform:scale(1.05);
+	box-shadow:0 6px 12px rgba(0,0,0,0.15);
+	}
+
+	/* Color themes per group */
+	.lower-primary .grade-btn {background:linear-gradient(135deg,#ff9a9e,#fad0c4);}
+	.upper-primary .grade-btn {background:linear-gradient(135deg,#84fab0,#8fd3f4);}
+	.junior-secondary .grade-btn {background:linear-gradient(135deg,#667eea,#764ba2);}
+
+	/* MOBILE */
+	@media(max-width:600px){
+	.welcome{font-size:22px;}
+	.subtitle{font-size:13px;}
+	}
+</style>
+
+<div class="container-dashboard">
+
+	<!-- HEADER -->
+	<div class="welcome">AGAWO COMPREHENSIVE SCHOOL</div>
+	<div class="subtitle">Welcome to Agawo Comprehensive School</div>
+
+	<!-- QUICK ACTIONS -->
+	<div class="quick-links">
+		<a class="quick-btn" href="{% url 'add_mark' %}">📊 Enter Marks</a>
+		<a class="quick-btn" href="{% url 'library' %}">📚 Library</a>
+		<a class="quick-btn" href="{% url 'reports' %}">📄 Reports</a>
+		<a class="quick-btn" href="{% url 'fees' %}">💰 Fees</a>
+		<a class="quick-btn" href="{% url 'logout' %}">🚪 Logout</a>
+	</div>
+
+	<!-- LOWER PRIMARY -->
+	<div class="group-title">Lower Primary</div>
+	<div class="grades lower-primary">
+		<a class="grade-btn" href="{% url 'grade_students' 1 %}">Grade 1</a>
+		<a class="grade-btn" href="{% url 'grade_students' 2 %}">Grade 2</a>
+		<a class="grade-btn" href="{% url 'grade_students' 3 %}">Grade 3</a>
+	</div>
+
+	<!-- UPPER PRIMARY -->
+	<div class="group-title">Upper Primary</div>
+	<div class="grades upper-primary">
+		<a class="grade-btn" href="{% url 'grade_students' 4 %}">Grade 4</a>
+		<a class="grade-btn" href="{% url 'grade_students' 5 %}">Grade 5</a>
+		<a class="grade-btn" href="{% url 'grade_students' 6 %}">Grade 6</a>
+	</div>
+
+	<!-- JUNIOR SECONDARY -->
+	<div class="group-title">Junior Secondary</div>
+	<div class="grades junior-secondary">
+		<a class="grade-btn" href="{% url 'grade_students' 7 %}">Grade 7</a>
+		<a class="grade-btn" href="{% url 'grade_students' 8 %}">Grade 8</a>
+		<a class="grade-btn" href="{% url 'grade_students' 9 %}">Grade 9</a>
+	</div>
+
+</div>
+
+{% endblock %}

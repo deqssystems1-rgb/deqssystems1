@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="library-wrap">
+    <div class="lib-header">
+        <h1>Admin Control Panel</h1>
+        <p>Create and manage staff access accounts</p>
+    </div>
+
+    <!-- CREATE USER FORM -->
+    <div class="library-card" style="margin-bottom: 20px;">
+        <form method="POST" class="form-grid" style="grid-template-columns: 1fr 1fr 1fr auto;">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="e.g. jdoe" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label>System Role</label>
+                <select name="role">
+                    <option value="Teacher">Teacher</option>
+                    <option value="Librarian">Librarian</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-action btn-primary">Create Account</button>
+        </form>
+    </div>
+
+    <!-- STAFF LIST TABLE -->
+    <div class="library-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Last Login</th>
+                    <th style="text-align:right;">Management</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for person in staff %}
+                <tr>
+                    <td><strong>{{ person.username }}</strong></td>
+                    <td>{{ person.groups.all.0.name }}</td>
+                    <td>{{ person.last_login|default:"Never" }}</td>
+                    <td style="text-align:right;">
+                        <button class="btn-receive" style="color:red; border-color:red;">Disable</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

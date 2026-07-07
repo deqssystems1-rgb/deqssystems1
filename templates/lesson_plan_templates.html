@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Plan - {{ grade }} {{ learning_area }}</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            color: #0f172a;
+        }
+        body {
+            background-color: #f8fafc;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+        .header-section {
+            text-align: center;
+            border-bottom: 3px double #1e3a8a;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .header-section h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1e3a8a;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .header-section h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #475569;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+        .header-section p {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .meta-item {
+            font-size: 14px;
+        }
+        .meta-item strong {
+            color: #1e3a8a;
+        }
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .content-table th, .content-table td {
+            border: 1px solid #cbd5e1;
+            padding: 14px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 14px;
+        }
+        .content-table th {
+            background-color: #f1f5f9;
+            color: #1e3a8a;
+            font-weight: 700;
+            width: 25%;
+        }
+        .content-table td {
+            line-height: 1.6;
+        }
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-back {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+        .btn-back:hover { background-color: #e2e8f0; }
+        .btn-print {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+        }
+        .btn-print:hover { box-shadow: 0 10px 15px rgba(37,99,235,0.2); }
+
+        /* ================= PRINT STYLES SHEET OVERRIDE ================= */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                max-width: 100%;
+            }
+            .action-bar {
+                display: none; /* Hides buttons on actual printed page */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- SCHOOL HEADER LAYOUT -->
+    <div class="header-section">
+        <h1>Agawo Junior School</h1>
+        <h2>Competency-Based Curriculum Lesson Plan</h2>
+        <p>Official Statutory Teaching Records Template</p>
+    </div>
+
+    <!-- METADATA INFORMATION BLOCK -->
+    <div class="meta-grid">
+        <div class="meta-item"><strong>Grade Level:</strong> {{ grade }}</div>
+        <div class="meta-item"><strong>Date:</strong> {% now "jS F Y" %}</div>
+        <div class="meta-item"><strong>Learning Area:</strong> {{ learning_area }}</div>
+        <div class="meta-item"><strong>Reference Book:</strong> {{ book_type }}</div>
+    </div>
+
+    <!-- MAIN CBC DETAILS MATRIX TABLE -->
+    <table class="content-table">
+        <tr>
+            <th>Strand</th>
+            <td>{{ strand }}</td>
+        </tr>
+        <tr>
+            <th>Sub-Strand</th>
+            <td>{{ sub_strand }}</td>
+        </tr>
+        <tr>
+            <th>Specific Learning Outcome</th>
+            <td>{{ outcome }}</td>
+        </tr>
+        <tr>
+            <th>Suggested Learning Activities</th>
+            <td>{{ activities }}</td>
+        </tr>
+        <tr>
+            <th>Key Inquiry Question</th>
+            <td>How can we apply what we have learned to daily life challenges?</td>
+        </tr>
+        <tr>
+            <th>Self-Reflection / Remarks</th>
+            <td style="color: #94a3b8; font-style: italic; height: 80px;">Teacher's post-lesson observation notes...</td>
+        </tr>
+    </table>
+
+    <!-- SYSTEM FOOTER ACTIONS BAR -->
+    <div class="action-bar">
+        <a href="{% url 'pro_docs' %}" class="btn btn-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back to Hub
+        </a>
+        <button onclick="window.print();" class="btn btn-print">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2m-12 0h10v4H6z"/></svg>
+            Print Lesson Plan
+        </button>
+    </div>
+</div>
+
+</body>
+</html>

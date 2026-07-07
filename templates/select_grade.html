@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-marks">
+
+    <!-- HEADER -->
+    <h1 style="text-align:center; color:#1565c0;">Select Grade</h1>
+
+    <!-- STEP 1: Select Grade -->
+    <h3>Step 1: Choose a Grade</h3>
+    <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+        {% for grade in grades %}
+            <a href="?grade={{ grade }}" 
+               style="padding:12px 18px; background:#43cea2; color:white; border-radius:6px; text-decoration:none; font-weight:600;">
+               {{ grade }}
+            </a>
+        {% endfor %}
+    </div>
+
+    {% if selected_grade %}
+        <!-- STEP 2: Select Subject -->
+        <h3>Step 2: Choose a Subject in {{ selected_grade }}</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+            {% for subject in subjects %}
+                <a href="?grade={{ selected_grade }}&subject={{ subject }}" 
+                   style="padding:12px 18px; background:#185a9d; color:white; border-radius:6px; text-decoration:none; font-weight:600;">
+                   {{ subject }}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* ===== 🖥️ SCREEN DISPLAY STYLES ===== */
+.container { max-width: 1300px; margin: auto; padding: 0 20px 20px 20px; }
+.print-only-header { display: none; }
+
+.top-section {
+    position: sticky;
+    top: 0;
+    background: #f4f7f6;
+    z-index: 100;
+    padding-top: 20px;
+    padding-bottom: 15px;
+}
+
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+h2 { color: #2c3e50; margin: 0; }
+.top-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.table-responsive {
+    overflow-x: auto;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    border-radius: 8px;
+}
+
+table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+thead th { position: sticky; top: 0; background: #3498db; color: white; z-index: 10; }
+th, td { padding: 12px 15px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; }
+th { text-transform: uppercase; font-size: 12px; }
+tr:hover { background: #f9fbfc; }
+
+/* Buttons */
+.btn { padding: 6px 10px; color: white; text-decoration: none; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; border: none; display: inline-block; transition: 0.2s; }
+.btn:hover { opacity: 0.8; color: white; }
+.edit { background: #f39c12; }
+.delete { background: #e74c3c; margin-left: 2px; }
+.back { background: #2c3e50; }
+.add { background: #2980b9; }
+.print { background: #607d8b; }
+.lib-btn { background: #8e44ad; } 
+
+.info-badge { background: #f1f1f1; color: #555; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+
+/* ===== 🖨️ PRINT ENGINE ===== */
+@media print {
+    .sidebar, aside, nav, .top-section, .btn, .top-actions, .search-container, .actions-column, .lib-column {
+        display: none !important;
+    }
+    .print-only-header { display: block !important; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; }
+    @page { size: auto; margin: 10mm; }
+    body { background: white !important; }
+    .container { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+    table { width: 100% !important; border: 1px solid #000 !important; }
+    th, td { border: 1px solid #000 !important; padding: 8px !important; color: #000 !important; white-space: normal !important; }
+}
+</style>
+
+<div class="container">
+
+    <!-- 🖨️ PRINT HEADER -->
+    <div class="print-only-header">
+        <h1>OBISA COMPREHENSIVE SCHOOL</h1>
+        <h3>STUDENT REGISTER: GRADE {{ grade }}</h3>
+    </div>
+
+    <!-- 📍 NAVIGATION & ACTIONS -->
+    <div class="top-section">
+        <div class="top-bar">
+            <h2>Grade {{ grade }} Register</h2>
+            <div class="top-actions">
+                <button onclick="window.print()" class="btn print">🖨️ Print List</button>
+                <a href="{% url 'library' %}" class="btn lib-btn">📚 Open Library</a>
+                <a href="{% url 'dashboard' %}" class="btn back">Dashboard</a>
+                {% if user.is_staff %}
+                    <a href="{% url 'add_student' %}?grade=Grade {{ grade }}" class="btn add">+ Add Student</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="studentSearch" class="search-input" placeholder="Search name, adm, or parent...">
+        </div>
+    </div>
+
+    <!-- 📊 THE LIST -->
+    <div class="table-responsive">
+        <table id="studentTable">
+            <thead>
+                <tr>
+                    <th style="width: 40px;">#</th>
+                    <th>Adm No</th>
+                    <th>Full Name</th>
+                    <th>Assessment No</th>
+                    <th>Parent Name</th>
+                    <th>Phone</th>
+                    <th class="actions-column">Actions</th>
+                    <th class="lib-column">Library</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for student in students %}
+                <tr class="student-row">
+                    <td style="color: #7f8c8d;">{{ forloop.counter }}</td>
+                    <td class="search-adm" style="font-weight:bold; color:#1565c0;">{{ student.admission_number }}</td>
+                    <td class="search-name">{{ student.student_name }}</td>
+                    <td><span class="info-badge">{{ student.assessment_number|default:"N/A" }}</span></td>
+                    <td class="search-parent">{{ student.parent_name|default:"-" }}</td>
+                    <td>{{ student.parent_phone|default:"-" }}</td>
+                    <td class="actions-column">
+                        <div style="display: flex; gap: 4px;">
+                            <a href="{% url 'edit_student' student.id %}" class="btn edit">Edit</a>
+                            
+                            {% if user.is_staff %}
+                            <form action="{% url 'delete_student' student.id %}" method="POST" 
+                                  onsubmit="return confirm('WARNING: Are you sure you want to delete {{ student.student_name|escapejs }}? This action is permanent.');"
+                                  style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn delete">Delete</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="lib-column">
+                        <button onclick="quickBorrow('{{ student.student_name|escapejs }}')" class="btn lib-btn">Issue Book</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" style="text-align:center; padding:30px;">No students found in Grade {{ grade }}.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // 🔍 SEARCH LOGIC
+    document.getElementById('studentSearch').addEventListener('keyup', function() {
+        const query = this.value.toLowerCase();
+        document.querySelectorAll('.student-row').forEach(row => {
+            const name = row.querySelector('.search-name').textContent.toLowerCase();
+            const adm = row.querySelector('.search-adm').textContent.toLowerCase();
+            const parent = row.querySelector('.search-parent').textContent.toLowerCase();
+            row.style.display = (name.includes(query) || adm.includes(query) || parent.includes(query)) ? "" : "none";
+        });
+    });
+
+    // 🚀 SYNC TO LIBRARY.HTML
+    document.addEventListener('DOMContentLoaded', function() {
+        let libraryData = JSON.parse(localStorage.getItem('library_students')) || [];
+        
+        const currentGradeStudents = [
+            {% for student in students %}
+            { 
+                "student_name": "{{ student.student_name|escapejs }}", 
+                "grade": "Grade {{ grade|escapejs }}",
+                "adm": "{{ student.admission_number|escapejs }}"
+            },
+            {% endfor %}
+        ];
+
+        const otherGrades = libraryData.filter(s => s.grade !== "Grade {{ grade|escapejs }}");
+        const updatedList = [...otherGrades, ...currentGradeStudents];
+        
+        localStorage.setItem('library_students', JSON.stringify(updatedList));
+    });
+
+    // 📚 QUICK BORROW REDIRECT
+    function quickBorrow(name) {
+        sessionStorage.setItem('pending_borrower', name);
+        window.location.href = "{% url 'library' %}"; 
+    }
+</script>
+
+{% endblock %}

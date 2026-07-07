@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.container {
+    max-width: 800px;
+    margin: 30px auto;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    text-align: center;
+    color: #f39c12;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+}
+
+.actions-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn-save {
+    background: #f39c12;
+    color: white;
+}
+
+.btn-cancel {
+    background: #7f8c8d;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+</style>
+
+<div class="container">
+    <h2>Edit Student Details</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="student_name">Student Full Name</label>
+            <input type="text" id="student_name" name="student_name" value="{{ student.student_name }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="admission_number">Admission Number</label>
+            <input type="text" id="admission_number" name="admission_number" value="{{ student.admission_number }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="parent_name">Parent Full Name</label>
+            <input type="text" id="parent_name" name="parent_name" value="{{ student.parent_name|default:'' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="parent_phone">Parent Phone Number</label>
+            <input type="text" id="parent_phone" name="parent_phone" value="{{ student.parent_phone|default:'' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="grade">Grade Assignment</label>
+            <!-- 🔑 FIX 1: Added required attribute to prevent empty selection form submission -->
+            <select id="grade" name="grade" required>
+                <!-- 🔑 FIX 2: Added a default fallback placeholder option -->
+                <option value="" disabled {% if not student.grade %}selected{% endif %}>-- Select Grade --</option>
+                {% for g in grades %}
+                    <option value="{{ g }}" {% if student.grade == g %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="actions-row">
+            <button type="submit" class="btn btn-save">Update Changes</button>
+
+            <!-- 🔑 FIX 3: Safe fallback using dashboard path if student.grade isn't resolvable -->
+            {% if student.grade %}
+                <a href="{% url 'grade_students' student.grade|cut:'Grade ' %}" class="btn btn-cancel">Cancel</a>
+            {% else %}
+                <a href="{% url 'dashboard' %}" class="btn btn-cancel">Cancel</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+{% endblock %}

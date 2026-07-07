@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block content %}
+<style>
+    /* GLOBAL TABLE STYLES */
+    table {
+        width: 100%;
+        border-collapse: collapse !important;
+        background: white;
+    }
+
+    th, td {
+        border: 1px solid #000 !important;
+        padding: 8px 4px;
+        text-align: center;
+        font-size: 0.85em;
+    }
+
+    /* BLUE HEADER STYLING */
+    thead th {
+        background-color: #1565c0 !important;
+        color: white !important;
+        text-transform: uppercase;
+        border: 1px solid #0d47a1 !important;
+        /* Ensures color shows on print */
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact;
+    }
+
+    .name-cell {
+        text-align: left !important;
+        padding-left: 10px !important;
+        white-space: nowrap !important;
+        font-weight: bold;
+    }
+
+    .rubric-tag {
+        font-size: 0.75em;
+        display: block;
+        color: #1565c0;
+        font-weight: bold;
+    }
+
+    .btn-view {
+        padding: 4px 8px;
+        background: #2e7d32;
+        color: white;
+        text-decoration: none;
+        border-radius: 3px;
+        font-size: 0.75em;
+        font-weight: bold;
+    }
+
+    /* SCREEN LAYOUT */
+    .table-scroll-area {
+        width: 100%;
+        overflow-x: auto;
+        max-height: 75vh;
+    }
+
+    .pdf-only-header { display: none; }
+
+    /* PRINT LOGIC */
+    @media print {
+        @page {
+            size: landscape;
+            margin: 1cm;
+        }
+
+        body * {
+            visibility: hidden;
+        }
+
+        .printable-content, .printable-content * {
+            visibility: visible;
+        }
+
+        .printable-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            padding: 0 !important;
+        }
+
+        /* Keep headers blue on print */
+        thead th {
+            background-color: #1565c0 !important;
+            color: white !important;
+        }
+
+        .no-print, form, button, .btn-view {
+            display: none !important;
+        }
+
+        .pdf-only-header {
+            display: block !important;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .table-scroll-area {
+            overflow: visible !important;
+        }
+    }
+</style>
+
+<div class="printable-content" style="padding:10px;">
+
+    <!-- HEADER FOR PRINT ONLY -->
+    <div class="pdf-only-header">
+        <h1 style="margin:0;">AGAWO COMPREHENSIVE SCHOOL</h1>
+        <h3 style="margin:5px 0;">ASSESSMENT RANKING LIST</h3>
+        <p><strong>GRADE:</strong> {{ selected_grade }} | 
+           <strong>TERM:</strong> {{ selected_term }} | 
+           <strong>YEAR:</strong> {{ selected_year }}</p>
+    </div>
+
+    <!-- UI HEADER FOR SCREEN ONLY -->
+    <h2 class="no-print" style="text-align:center;">ASSESSMENT RANKING LIST</h2>
+
+    <form method="get" class="no-print" style="text-align:center; margin-bottom:20px;">
+        Grade:
+        <select name="grade">
+            {% for g in grades %}
+                <option value="{{ g }}" {% if g == selected_grade %}selected{% endif %}>{{ g }}</option>
+            {% endfor %}
+        </select>
+
+        Term:
+        <select name="term">
+            {% for t in terms %}
+                <option value="{{ t }}" {% if t == selected_term %}selected{% endif %}>Term {{ t }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Filter</button>
+    </form>
+
+    <div class="table-scroll-area">
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th class="name-cell">Student Name</th>
+                    {% for subject in subjects %}
+                        <th>{{ subject }}</th>
+                    {% endfor %}
+                    <th>Total</th>
+                    <th>Rubric</th>
+                    <th class="no-print">Report</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for row in performance_data %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+
+                    <td class="name-cell">
+                        {% if row.student.full_name %}
+                            {{ row.student.full_name|upper }}
+                        {% elif row.student.first_name %}
+                            {{ row.student.first_name|upper }} {{ row.student.last_name|upper }}
+                        {% elif row.student.student_name %}
+                            {{ row.student.student_name|upper }}
+                        {% else %}
+                            UNKNOWN
+                        {% endif %}
+                    </td>
+
+                    {% for item in row.subject_marks %}
+                        <td>
+                            {% if item.score is not None %}
+                                <strong>{{ item.score }}</strong>
+                                <span class="rubric-tag">{{ item.rubric }}</span>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+
+                    <td><strong>{{ row.total }}</strong></td>
+                    <td><strong>{{ row.overall_rubric }}</strong></td>
+
+                    <td class="no-print">
+                        <a href="{% url 'report_card' row.student.id %}?term={{ selected_term }}&year={{ selected_year }}" 
+                           class="btn-view" target="_blank">
+                           VIEW
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="{{ subjects|length|add:5 }}">
+                        No data found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="no-print" style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+        <small>* Sorted by total marks</small>
+        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer; background: #1565c0; color: white; border: none; border-radius: 4px; font-weight: bold;">
+            Print Ranking List
+        </button>
+    </div>
+
+</div>
+
+{% endblock %}

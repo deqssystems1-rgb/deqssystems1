@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+
+.report-container{
+    max-width:850px;
+    margin:20px auto;
+    background:#fff;
+    padding:25px 30px;
+    box-shadow:0 0 10px rgba(0,0,0,.08);
+}
+
+.btn-row{
+    display:flex;
+    justify-content:flex-end;
+    margin-bottom:20px;
+}
+
+.print-btn{
+    background:#0056B3;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:4px;
+    cursor:pointer;
+    font-weight: bold;
+}
+
+.text-center{ text-align:center; }
+.bold{ font-weight:bold; }
+
+.header-table{
+    width:100%;
+    margin-bottom:10px;
+}
+
+.logo{
+    width:120px;
+    height:auto;
+}
+
+.school-title{
+    color:#0056B3;
+    font-size:28px;
+    font-weight:bold;
+    margin:0;
+}
+
+.school-subtitle{
+    font-size:13px;
+    color:#1e293b;
+    margin:2px 0;
+    font-weight: bold;
+}
+
+.banner-td{
+    background:#EBF8FF;
+    border:2px solid #0056B3;
+    text-align:center;
+    font-weight:bold;
+    padding:8px;
+    color:#2B6CB0;
+}
+
+/* ================= STUDENT INFO (DARK & BOLD BOXES) ================= */
+.student-info-table{
+    width:100%;
+    border-collapse:collapse;
+    margin:15px 0;
+}
+
+.info-cell{
+    width:25%;
+    padding:8px;
+    border:2px solid #000000;
+    background:#e2e8f0;
+}
+
+.info-label{
+    font-size:11px;
+    color:#1e293b;
+    font-weight: 800;
+}
+
+.info-value{
+    font-weight:900;
+    font-size:14px;
+    color:#000000;
+}
+
+.kpi-table{
+    width:100%;
+    margin-bottom:20px;
+}
+
+.kpi-td{
+    width:33%;
+    text-align:center;
+    color:white;
+    padding:12px;
+    font-weight: bold;
+    font-size:15px;
+}
+
+.kpi-blue{
+    background:#0056B3;
+}
+
+.kpi-green{
+    background:#1D8A48;
+}
+
+/* ================= MARKS GRID (DARK & BOLD GRIDS) ================= */
+.marks-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.marks-table th{
+    background:#0056B3;
+    color:white;
+    padding:9px;
+    font-size:13px;
+    border:2px solid #000000;
+}
+
+.marks-table td{
+    border:2px solid #000000;
+    padding:9px;
+    font-size:13px;
+    color:#000000;
+}
+
+.row-even{
+    background:#cbd5e1;
+}
+
+.sign-table{
+    width:100%;
+    margin-top:40px; 
+}
+
+.sign-box{
+    width:33%;
+    text-align:center;
+}
+
+.line{
+    border-top:2px solid #000000;
+    width:80%;
+    margin:0 auto;
+    height:30px;
+}
+
+.sign-title{
+    font-size:13px;
+    font-weight:bold;
+    color:#000000;
+}
+
+.page-break{
+    margin-bottom: 40px;
+}
+
+@media print{
+    body * {
+        visibility: hidden !important;
+    }
+
+    nav, header, .navbar, .top-bar, .agawo-header, .no-print, .btn-row {
+        display: none !important;
+        height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    body, html, main, .main-content {
+        visibility: visible !important;
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .report-container, .report-container * {
+        visibility: visible !important;
+    }
+
+    .report-container {
+        box-shadow: none !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        display: block !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-after: always !important;
+        break-after: always !important;
+    }
+
+    tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .marks-table th, .marks-table td {
+        padding: 6px !important;
+    }
+
+    .sign-table {
+        margin-top: 30px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .report-container:last-child {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+    }
+
+    *{
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    @page {
+        margin: 12mm 15mm;
+    }
+}
+
+</style>
+
+<!-- Automated quick execution header action menu row -->
+<div class="btn-row no-print">
+    <button class="print-btn" onclick="window.print()">
+        🖨️ Print All Student Reports
+    </button>
+</div>
+
+{% for report in reports %}
+
+<div class="report-container page-break">
+
+    <table class="header-table">
+        <tr>
+            <td style="width:8%;">
+                <img src="{% static 'images/logo.png' %}" class="logo">
+            </td>
+
+            <td class="text-center">
+                <h1 class="school-title">OBISA COMPREHENSIVE SCHOOL</h1>
+                <p class="school-subtitle">P.O. BOX 275-40222, OYUGIS</p>
+                <p class="school-subtitle">
+                    CONTACTS; 0141573982
+                </p>
+            </td>
+        </tr>
+    </table>
+
+    <table style="width:100%;margin-bottom:15px;">
+        <tr>
+            <td class="banner-td">
+                LEARNER'S ASSESMENT  REPORT CARD
+            </td>
+        </tr>
+    </table>
+
+    <table class="student-info-table">
+        <tr>
+            <td class="info-cell">
+                <div class="info-label">NAME</div>
+                <div class="info-value">
+                    {{ report.student.student_name|upper }}
+                </div>
+            </td>
+
+            <td class="info-cell">
+                <div class="info-label">ADM NO</div>
+                <div class="info-value">
+                    {{ report.student.admission_number }}
+                </div>
+            </td>
+
+            <td class="info-cell">
+                <div class="info-label">CLASS</div>
+                <div class="info-value">
+                    {{ report.student.grade }}
+                </div>
+            </td>
+
+            <td class="info-cell">
+                <div class="info-label">TERM</div>
+                <div class="info-value">
+                    {{ term }} / {{ year }}
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <table class="kpi-table">
+        <tr>
+            <td class="kpi-td kpi-blue">
+                Total<br>
+                {{ report.total_marks }}
+            </td>
+
+            <td class="kpi-td kpi-green">
+                Average<br>
+                {{ report.average_marks }}%
+            </td>
+
+            <td class="kpi-td kpi-blue">
+                Grade<br>
+                {{ report.overall_rubric }}
+            </td>
+        </tr>
+    </table>
+
+    <table class="marks-table">
+        <thead>
+            <tr>
+                <th>SUBJECT</th>
+                <th>SCORE</th>
+                <th>RATING</th>
+                <th>TEACHER</th>
+                <th>TEACHER REMARKS</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for m in report.subject_marks %}
+            <tr class="{% cycle '' 'row-even' %}">
+                <td class="bold" style="font-weight: 800;">{{ m.subject|upper }}</td>
+
+                <!-- SCORE -->
+                <td class="bold">
+                    {% if m.score == None or m.score == "" or m.score|lower == "missed" %}
+                        MISSED
+                    {% else %}
+                        {{ m.score }}
+                    {% endif %}
+                </td>
+
+                <!-- RATING -->
+                <td class="bold">
+                    {% if m.score == None or m.score == "" or m.score|lower == "missed" %}
+                        NA
+                    {% else %}
+                        {{ m.rubric|default:"-" }}
+                    {% endif %}
+                </td>
+
+                <!-- TEACHER NAME (Positioned between Rating and Remarks) -->
+                <td style="font-weight: 700;">{{ m.teacher|upper }}</td>
+
+                <!-- TEACHER REMARKS -->
+                <td style="font-style: italic; font-weight: 500;">
+                    {% if m.score == None or m.score == "" or m.score|lower == "missed" or m.rubric == "NA" %}
+                        Missed assessment.
+                    {% elif m.rubric == "EE" or m.rubric == "EE1" or m.rubric == "EE2" %}
+                        Exceeds expectations. Outstanding progress.
+                    {% elif m.rubric == "ME" or m.rubric == "ME1" or m.rubric == "ME2" %}
+                        Meets expectations. Capable performance.
+                    {% elif m.rubric == "AE" or m.rubric == "AE1" or m.rubric == "AE2" %}
+                        Approaching expectations. Needs improvement in key areas.
+                    {% elif m.rubric == "BE" or m.rubric == "BE1" or m.rubric == "BE2" %}
+                        Below expectations. Should work extra hard .
+                    {% else %}
+                        No records entered.
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- SIGNATURES -->
+    <table class="sign-table">
+        <tr>
+            <td class="sign-box">
+                <div class="line"></div>
+                <div class="sign-title">Class Teacher</div>
+            </td>
+            <td class="sign-box">
+                <div class="line"></div>
+                <div class="sign-title">Head Teacher</div>
+            </td>
+            <td class="sign-box">
+                <div class="line"></div>
+                <div class="sign-title">Parent/Guardian</div>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+{% endfor %}
+
+{% endblock %}

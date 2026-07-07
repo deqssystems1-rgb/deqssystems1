@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Load Formal Academic Font -->
+<link href="https://googleapis.com" rel="stylesheet">
+
+<div class="timetable-viewport">
+    <!-- 1. PINNED CONTROLS (Hidden during print) -->
+    <header class="no-print generator-controls">
+        <div class="selection-box">
+            <div class="brand">
+                <h1 class="brand-title">Agawo Timetable Editor</h1>
+                <span class="status-tag">Core Subjects Prioritized: Morning</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="gradeSelect">Class:</label>
+                <select id="gradeSelect" onchange="renderTimetable()">
+                    <option value="">-- Select Grade --</option>
+                </select>
+            </div>
+
+            <!-- LIVE EDITING TOOLS -->
+            <div class="editor-toolbar">
+                <button onclick="editAction('fontSize', '4')" title="Make Bigger">A+</button>
+                <button onclick="editAction('fontSize', '2')" title="Make Smaller">A-</button>
+                <button onclick="editAction('bold')" title="Bold"><strong>B</strong></button>
+                <button onclick="editAction('italic')" title="Italic"><em>I</em></button>
+            </div>
+
+            <button onclick="window.print()" class="btn-print">Print Official PDF</button>
+        </div>
+    </header>
+
+    <!-- 2. SCROLLABLE OFFICIAL DOCUMENT AREA -->
+    <main class="print-area-wrapper">
+        <div id="timetableOutput" class="official-page" contenteditable="true">
+            <div class="placeholder-text">
+                <p>Select a grade from the menu above to generate the schedule.</p>
+                <small>Pedagogical Rule: MATH, ENG, and KISW are locked to morning slots.</small>
+            </div>
+        </div>
+    </main>
+</div>
+
+<style>
+    @page { size: landscape; margin: 0.5cm; }
+    :root { --border-black: 1.5px solid #000; --font-official: "Times New Roman", Times, serif; }
+    body { background: #525659; margin: 0; font-family: var(--font-official); }
+
+    .timetable-viewport { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    .generator-controls { flex-shrink: 0; background: #ffffff; padding: 12px 40px; border-bottom: 4px solid #2563eb; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .selection-box { display: flex; align-items: center; justify-content: space-between; max-width: 1300px; margin: 0 auto; }
+    .brand-title { font-size: 1.2rem; margin: 0; font-family: sans-serif; font-weight: 800; color: #1e293b; }
+    .status-tag { font-size: 0.6rem; background: #ecfdf5; color: #059669; padding: 2px 8px; border-radius: 10px; font-family: sans-serif; font-weight: bold; }
+
+    .editor-toolbar { display: flex; gap: 8px; border-left: 1px solid #ddd; padding-left: 20px; }
+    .editor-toolbar button { width: 35px; height: 35px; cursor: pointer; border: 1px solid #ccc; background: #f8fafc; border-radius: 6px; font-weight: bold; }
+    
+    .print-area-wrapper { flex-grow: 1; overflow-y: auto; padding: 30px 10px; }
+    .official-page { background: #fff; width: 100%; max-width: 1120px; margin: 0 auto; padding: 25px; min-height: 100%; outline: none; }
+
+    .school-header { text-align: center; margin-bottom: 10px; }
+    .school-name { font-size: 2.6rem; font-weight: bold; text-decoration: underline; margin: 0; text-transform: uppercase; }
+    .doc-title { font-weight: bold; border-bottom: 2.5px solid #000; display: inline-block; font-size: 1rem; margin-top: 5px; }
+
+    .tt-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 15px; }
+    .tt-table th, .tt-table td { border: var(--border-black); text-align: center; vertical-align: middle; height: 75px; position: relative; }
+
+    /* HEADER TIME SLOTS */
+    .time-top { font-size: 0.7rem; font-weight: bold; display: block; line-height: 1.1; }
+    .time-large { font-size: 1.5rem; font-weight: 900; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); background: white; padding: 0 3px; z-index: 5; }
+
+    .day-col { width: 110px; font-weight: bold; text-align: left !important; padding-left: 10px !important; font-size: 1.1rem; }
+    .break-char { font-size: 2.4rem; font-weight: bold; }
+
+    /* SUBJECT CELLS */
+    .subject-box { font-weight: bold; font-size: 1.2rem; line-height: 1.0; }
+    .teacher-init { display: block; font-size: 0.75rem; color: #0000FF; font-style: italic; font-weight: bold; margin-top: 2px; }
+
+    .placeholder-text { text-align: center; padding-top: 150px; color: #94a3b8; font-family: sans-serif; }
+
+    @media print {
+        .no-print { display: none; }
+        .print-area-wrapper { overflow: visible; padding: 0; background: #fff; }
+        .official-page { box-shadow: none; max-width: 100%; padding: 0; }
+    }
+</style>
+
+<script>
+    function editAction(cmd, val = null) { document.execCommand(cmd, false, val); }
+
+    const days = [
+        { name: "MONDAY", b1: "B", b2: "B", l: "L", g: "G" },
+        { name: "TUESDAY", b1: "R", b2: "R", l: "U", g: "A" },
+        { name: "WEDNESDAY", b1: "E", b2: "E", l: "N", g: "M" },
+        { name: "THURSDAY", b1: "A", b2: "A", l: "C", g: "E" },
+        { name: "FRIDAY", b1: "K", b2: "K", l: "H", g: "S" }
+    ];
+
+    const allocations = JSON.parse(localStorage.getItem('teacherAllocations')) || [];
+
+    function init() {
+        const select = document.getElementById('gradeSelect');
+        const uniqueGrades = [...new Set(allocations.map(a => a.grade))];
+        uniqueGrades.forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g; opt.innerText = g;
+            select.appendChild(opt);
+        });
+    }
+
+    function getInitials(name) {
+        if (!name) return "";
+        const clean = name.replace(/^(Mr\.|Ms\.|Mrs\.|Miss|Dr\.)\s+/i, "");
+        return clean.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    function renderTimetable() {
+        const grade = document.getElementById('gradeSelect').value;
+        const output = document.getElementById('timetableOutput');
+        if (!grade) return;
+
+        const gradeAllocations = allocations.filter(a => a.grade === grade);
+
+        let html = `
+            <div class="school-header">
+                <h1 class="school-name">AGAWO JUNIOR SCHOOL</h1>
+                <div class="doc-title">LESSONS TIME TABLE 2026 — ${grade.toUpperCase()}</div>
+            </div>
+            <table class="tt-table">
+                <thead>
+                    <tr>
+                        <th class="day-col">GRADE</th>
+                        <th><span class="time-top">8:10<br>8:50</span></th>
+                        <th><span class="time-top">8:50<br>9:30</span></th>
+                        <th style="width:55px;"><span class="time-top" style="font-size:0.5rem">9:30</span><span class="time-large">9:40</span></th>
+                        <th><span class="time-top">9:40<br>10:20</span></th>
+                        <th><span class="time-top">10:20<br>11:00</span></th>
+                        <th style="width:55px;"><span class="time-top" style="font-size:0.5rem">11:00</span><span class="time-large">11:20</span></th>
+                        <th><span class="time-top">11:20<br>12:00</span></th>
+                        <th><span class="time-top">12:00<br>12:40</span></th>
+                        <th style="width:55px;"><span class="time-top" style="font-size:0.5rem">12:40</span><span class="time-large">2:00</span></th>
+                        <th><span class="time-top">2:00<br>2:40</span></th>
+                        <th><span class="time-top">2:40<br>3:20</span></th>
+                        <th style="width:55px;"><span class="time-top" style="font-size:0.5rem">3:20</span><span class="time-large">4:30</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        days.forEach(day => {
+            html += `<tr><td style="font-weight:bold; text-align:left; padding-left:10px;">${day.name}</td>`;
+            
+            // LOGIC: Split Pool into Morning-Core and Others
+            const morningCore = shuffle([...gradeAllocations.filter(a => 
+                ["MATH", "ENG", "KISW"].includes(a.subject.toUpperCase())
+            )]);
+            const otherSubjects = shuffle([...gradeAllocations.filter(a => 
+                !["MATH", "ENG", "KISW"].includes(a.subject.toUpperCase())
+            )]);
+
+            let morningIdx = 0;
+            let otherIdx = 0;
+
+            const getMorningSlot = () => {
+                let item = (morningIdx < morningCore.length) ? morningCore[morningIdx++] : otherSubjects[otherIdx++];
+                return item ? `<td class="subject-box">${item.subject}<span class="teacher-init">${getInitials(item.teacher)}</span></td>` : `<td>---</td>`;
+            };
+
+            const getAfternoonSlot = () => {
+                let item = (otherIdx < otherSubjects.length) ? otherSubjects[otherIdx++] : morningCore[morningIdx++];
+                return item ? `<td class="subject-box">${item.subject}<span class="teacher-init">${getInitials(item.teacher)}</span></td>` : `<td>---</td>`;
+            };
+
+            // Filling 8 Lesson Slots
+            html += getMorningSlot(); html += getMorningSlot(); // Slots 1-2
+            html += `<td class="break-char">${day.b1}</td>`;
+            html += getMorningSlot(); html += getMorningSlot(); // Slots 3-4
+            html += `<td class="break-char">${day.b2}</td>`;
+            html += getMorningSlot(); html += getMorningSlot(); // Slots 5-6 (Before Lunch)
+            html += `<td class="break-char">${day.l}</td>`;
+            html += getAfternoonSlot(); html += getAfternoonSlot(); // Slots 7-8 (Afternoon)
+            html += `<td class="break-char">${day.g}</td></tr>`;
+        });
+
+        html += `</tbody></table>`;
+        output.innerHTML = html;
+    }
+    init();
+</script>
+{% endblock %}

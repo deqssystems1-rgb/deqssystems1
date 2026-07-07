@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+
+/* ================= OUTER CONTAINER ================= */
+.report-container {
+    max-width: 850px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 25px 30px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.08);
+}
+
+/* ================= BUTTONS ================= */
+.btn-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.print-btn {
+    background: #0056B3;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.print-btn:hover { background: #004494; }
+
+.view-btn {
+    background: #1D8A48;
+    color: white;
+    padding: 8px 14px;
+    font-size: 12px;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+/* ================= GENERAL ================= */
+.text-center { text-align: center; }
+.bold { font-weight: bold; }
+
+.school-title {
+    color: #0056B3;
+    font-size: 32px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+}
+
+.school-subtitle {
+    font-size: 14px;
+    color: #1e293b;
+    font-weight: bold;
+}
+
+/* ================= BANNER ================= */
+.banner-td {
+    background: #EBF8FF;
+    border: 2px solid #0056B3;
+    text-align: center;
+    font-weight: bold;
+    padding: 8px;
+    color: #2B6CB0;
+}
+
+/* ================= STUDENT INFO (DARK & BOLD BOXES) ================= */
+.student-info-table {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    border-collapse: collapse;
+}
+
+.info-cell {
+    width: 25%;
+    padding: 8px;
+    border: 2px solid #000000;
+    background: #e2e8f0;
+}
+
+.info-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #1e293b;
+    font-weight: 800;
+}
+
+.info-value {
+    font-size: 14px;
+    font-weight: 900;
+    color: #000000;
+}
+
+/* ================= KPI ================= */
+.kpi-table {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.kpi-td {
+    width: 33%; /* REVERTED TO 3 BLOCKS */
+    padding: 12px;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.kpi-blue { background: #0056B3; }
+.kpi-green { background: #1D8A48; }
+
+/* ================= MARKS GRID (DARK & BOLD GRIDS) ================= */
+.marks-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.marks-table th {
+    background: #0056B3;
+    color: white;
+    padding: 9px;
+    font-size: 13px;
+    border: 2px solid #000000;
+}
+
+.marks-table td {
+    padding: 9px;
+    border: 2px solid #000000;
+    font-size: 13px;
+    color: #000000;
+}
+
+.row-even { 
+    background: #cbd5e1;
+}
+
+/* ================= SIGNATURES ================= */
+.sign-table {
+    width: 100%;
+    margin-top: 60px;
+}
+
+.sign-box {
+    width: 33%;
+    text-align: center;
+    vertical-align: bottom;
+}
+
+.line {
+    border-top: 2px solid #000000;
+    width: 80%;
+    margin: 0 auto;
+    height: 30px;
+}
+
+.sign-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #000000;
+}
+
+/* ================= PRINT ENGINE OPTIMIZATION ================= */
+@media print {
+    body * { visibility: hidden; }
+
+    nav, header, .navbar, .top-bar, .no-print, .btn-row {
+        display: none !important;
+        height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    body, html, main, .main-content {
+        visibility: visible !important;
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .report-container, .report-container * {
+        visibility: visible !important;
+    }
+
+    .report-container {
+        position: static !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+    }
+
+    .marks-table th, .marks-table td {
+        padding: 6px !important;
+        font-size: 12px !important;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    @page {
+        size: portrait;
+        margin: 10mm 12mm;
+    }
+}
+
+</style>
+
+<div class="report-container">
+
+    <!-- BUTTONS -->
+    <div class="btn-row no-print">
+        <a class="view-btn"
+           href="{% url 'view_list' %}?grade={{ student.grade }}&term={{ selected_term }}&year={{ selected_year }}">
+            📊 View List
+        </a>
+
+        <a class="view-btn"
+           style="background:#6B46C1;"
+           href="{% url 'print_all_reports' %}?grade={{ student.grade }}&term={{ selected_term }}&year={{ selected_year }}">
+            📄 Print All
+        </a>
+
+        <button class="print-btn" onclick="window.print()">
+            🖨️ Print Report
+        </button>
+    </div>
+
+    <!-- CENTERING FLEXBOX HEADER -->
+    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px; position: relative; width: 100%;">
+        
+        <!-- LOGO (Positioned absolutely on the left) -->
+        <div style="position: absolute; left: 0; top: 50%; transform: translateY(-50%);">
+            <img src="{% static 'images/logo.png' %}"
+                 style="width: 110px; height: auto; object-fit: contain;"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+            <div class="logo-fallback" style="display:none; width: 110px; height: 110px; background: #cbd5e1; align-items: center; justify-content: center; font-size: 10px; color: #1e293b; border: 2px solid #000000; font-weight: bold;">
+                SCHOOL LOGO
+            </div>
+        </div>
+
+        <!-- CENTERED SCHOOL INFO -->
+        <div class="text-center" style="width: 100%; padding: 0 120px;">
+            <h1 class="school-title" style="margin: 0 0 4px 0; line-height: 1.2;">OBISA COMPREHENSIVE SCHOOL</h1>
+            <p class="school-subtitle" style="margin: 2px 0;">P.O. BOX 275-40222, OYUGIS</p>
+            <p class="school-subtitle" style="margin: 2px 0;">CONTACTS 0141573982</p>
+            <p class="school-subtitle" style="margin: 2px 0;">EMAIL: Obisaprimaryschool@gmail.com</p>
+        </div>
+        
+    </div>
+
+    <!-- BANNER -->
+    <table style="width:100%; margin-bottom:15px;">
+        <tr>
+            <td class="banner-td">LEARNER'S ASSESSEMENT REPORT CARD</td>
+        </tr>
+    </table>
+
+    <!-- STUDENT INFO -->
+    <table class="student-info-table">
+        <tr>
+            <td class="info-cell">
+                <div class="info-label">Name</div>
+                <div class="info-value">{{ student.student_name|upper }}</div>
+            </td>
+
+            <td class="info-cell">
+                <div class="info-label">Admission No</div>
+                <div class="info-value">{{ student.admission_number }}</div>
+            </td>
+
+            <td class="info-cell">
+                <div class="info-label">Class</div>
+                <div class="info-value">{{ student.grade }}</div>
+            </td>
+
+            <td class="info-cell">
+                <div class="info-label">Term</div>
+                <div class="info-value">{{ selected_term }} / {{ selected_year }}</div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- KPI BLOCKS (REVERTED TO TOTAL, AVERAGE, GRADE) -->
+    <table class="kpi-table">
+        <tr>
+            <td class="kpi-td kpi-blue">Total<br>{{ total_marks }}</td>
+            <td class="kpi-td kpi-green">Average<br>{{ average_marks }}%</td>
+            <td class="kpi-td kpi-blue">Grade<br>{{ overall_rubric }}</td>
+        </tr>
+    </table>
+
+    <!-- MARKS TABLE -->
+    <table class="marks-table">
+        <thead>
+            <tr>
+                <th style="text-align: left; padding-left: 10px;">SUBJECT</th>
+                <th>SCORE</th>
+                <th>RATING</th>
+                <th>TEACHER</th>
+                <th style="width: 35%;">TEACHER REMARKS</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for item in subject_marks %}
+            <tr class="{% cycle '' 'row-even' %}">
+                <td class="bold" style="font-weight: 800; text-align: left; padding-left: 10px;">{{ item.subject|upper }}</td>
+                
+                <!-- SCORE -->
+                <td class="bold" style="text-align: center;">{{ item.score|default:"MISSED" }}</td>
+                
+                <!-- RATING -->
+                <td class="bold" style="text-align: center;">
+                    {% if item.score == None or item.score == "" or item.score|lower == "missed" %}
+                        NA
+                    {% else %}
+                        {{ item.rubric|default:"-" }}
+                    {% endif %}
+                </td>
+
+                <!-- TEACHER NAME -->
+                <td style="font-weight: 700; text-align: center;">{{ item.teacher|upper }}</td>
+                
+                <!-- TEACHER REMARKS -->
+                <td style="font-style: italic; font-weight: 500; text-align: left; padding-left: 8px;">
+                    {{ item.remarks|default:"Satisfactory progression." }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- SIGNATURES -->
+    <table class="sign-table">
+        <tr>
+            <td class="sign-box">
+                <div class="line"></div>
+                <div class="sign-title">Class Teacher</div>
+            </td>
+            <td class="sign-box">
+                <div class="line"></div>
+                <div class="sign-title">Headteacher's Signature</div>
+            </td>
+            <td class="sign-box">
+                <div class="line"></div>
+                <div class="sign-title">Parent's Signature</div>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,279 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obisa Comprehensive School</title>
+
+    <!-- FONT -->
+    <link href="https://googleapis.com" rel="stylesheet">
+
+    <style>
+        :root{
+            --bg:#f1f5f9;
+            --card:#ffffff;
+            --text:#0f172a;
+            --muted:#64748b;
+            --primary:#2563eb;
+            --primary-dark:#1e40af;
+            --border:#e2e8f0;
+        }
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Inter,system-ui,sans-serif;
+        }
+
+        body{
+            display:flex;
+            min-height:100vh;
+            background:linear-gradient(135deg,#eef2ff 0%,#f8fafc 50%,#eff6ff 100%);
+            color:var(--text);
+        }
+
+        /* ================= SIDEBAR ================= */
+        .sidebar{
+            width:270px;
+            background:linear-gradient(180deg,#1e3a8a,#2563eb,#3b82f6);
+            color:white;
+            padding:24px 16px;
+            display:flex;
+            flex-direction:column;
+            box-shadow:4px 0 20px rgba(0,0,0,.15);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .brand{
+            text-align:center;
+            font-size:18px;
+            font-weight:800;
+            margin-bottom:28px;
+            letter-spacing:1px;
+        }
+
+        .menu{
+            display:flex;
+            flex-direction:column;
+            gap:10px;
+            flex:1;
+        }
+
+        .menu a{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:12px 14px;
+            border-radius:12px;
+            text-decoration:none;
+            transition:.25s ease;
+            font-weight:600;
+            font-size:14px;
+            background: rgba(255, 255, 255, 0.95); 
+        }
+
+        .menu a svg{
+            width:18px;
+            height:18px;
+        }
+
+        .menu a:hover{
+            transform:translateX(6px);
+        }
+
+        /* Unique Static Colors for Text and SVGs */
+        .nav-dashboard { color: #1d4ed8; }
+        .nav-marks { color: #047857; }
+        .nav-library { color: #b45309; }
+        .nav-reports { color: #6d28d9; }
+        .nav-fees { color: #be185d; }
+        .nav-pro-docs { color: #334155; } /* Slate Grey */
+        .nav-logout { color: #b91c1c; }
+
+        /* Unique Gradients on Hover and Active Selection */
+        .nav-dashboard:hover, .nav-dashboard.active { background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important; color: white !important; }
+        .nav-marks:hover, .nav-marks.active { background: linear-gradient(135deg, #10b981, #047857) !important; color: white !important; }
+        .nav-library:hover, .nav-library.active { background: linear-gradient(135deg, #f59e0b, #b45309) !important; color: white !important; }
+        .nav-reports:hover, .nav-reports.active { background: linear-gradient(135deg, #8b5cf6, #6d28d9) !important; color: white !important; }
+        .nav-fees:hover, .nav-fees.active { background: linear-gradient(135deg, #ec4899, #be185d) !important; color: white !important; }
+        .nav-pro-docs:hover, .nav-pro-docs.active { background: linear-gradient(135deg, #64748b, #334155) !important; color: white !important; }
+        .nav-logout:hover, .nav-logout.active { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; color: white !important; }
+
+        /* ================= MAIN ================= */
+        .main{
+            flex:1;
+            display:flex;
+            flex-direction:column;
+            margin-left: 270px; 
+        }
+
+        .content{
+            padding:30px;
+        }
+
+        .card{
+            background:white;
+            border-radius:18px;
+            padding:28px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.06);
+            border:1px solid var(--border);
+        }
+
+        .card h2{
+            font-size:22px;
+            font-weight:800;
+            margin-bottom:10px;
+        }
+
+        .card p{
+            color:var(--muted);
+            line-height:1.6;
+            font-size:14px;
+        }
+
+        .btn{
+            display:inline-block;
+            margin-top:16px;
+            padding:10px 16px;
+            background:linear-gradient(135deg,#2563eb,#3b82f6);
+            color:white;
+            border-radius:10px;
+            text-decoration:none;
+            font-weight:600;
+            font-size:13px;
+            transition:.2s;
+        }
+
+        .btn:hover{
+            transform:translateY(-2px);
+            box-shadow:0 10px 20px rgba(37,99,235,.25);
+        }
+
+        /* ================= MOBILE ================= */
+        @media(max-width:768px){
+            body{
+                flex-direction:column;
+            }
+
+            .sidebar{
+                width:100%;
+                flex-direction:row;
+                overflow-x:auto;
+                align-items:center;
+                position: static;
+                height: auto;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .brand{
+                display:none;
+            }
+
+            .menu{
+                flex-direction:row;
+                flex-wrap:wrap;
+                gap:6px;
+            }
+
+            .menu a{
+                flex:1;
+                justify-content:center;
+                font-size:12px;
+                padding:8px 10px;
+            }
+
+            .content{
+                padding:16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="brand">OBISA SCHOOL</div>
+
+    <nav class="menu">
+        <a href="{% url 'dashboard' %}" class="nav-item nav-dashboard">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            Dashboard
+        </a>
+
+        <a href="{% url 'marks_entry' %}" class="nav-item nav-marks">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v8H3v-8zm4-6h2v14H7V7zm4 3h2v11h-2V10zm4-6h2v17h-2V4zm4 9h2v8h-2v-8z"/></svg>
+            Marks Entry
+        </a>
+
+        <a href="{% url 'library' %}" class="nav-item nav-library">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v14H4V6zm2 2v10h12V8H6z"/></svg>
+            Library
+        </a>
+
+        <a href="{% url 'reports' %}" class="nav-item nav-reports">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>
+            Reports
+        </a>
+
+        <a href="{% url 'fees' %}" class="nav-item nav-fees">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l3 6h6l-5 4 2 6-6-4-6 4 2-6-5-4h6z"/></svg>
+            Fees
+        </a>
+
+        <!-- PRO DOCS (New Button) -->
+        <a href="{% url 'pro_docs' %}" class="nav-item nav-pro-docs">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            Pro Docs
+        </a>
+
+        <a href="{% url 'logout' %}" class="nav-item nav-logout">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 17l5-5-5-5v10z"/></svg>
+            Logout
+        </a>
+    </nav>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <div class="content">
+        {% block content %}
+
+        <div class="card">
+            <h2>Welcome to Agawo School System</h2>
+            <p>
+                Manage students, teachers, assessments, and reports in a modern,
+                fast and secure school management platform.
+            </p>
+
+            <a href="#" class="btn">Open Dashboard</a>
+        </div>
+
+        {% endblock %}
+    </div>
+
+</div>
+
+<script>
+    const links = document.querySelectorAll(".nav-item");
+    const path = window.location.pathname;
+
+    links.forEach(link=>{
+        if(path.includes(link.getAttribute("href"))){
+            link.classList.add("active");
+        }
+    });
+</script>
+
+</body>
+</html>

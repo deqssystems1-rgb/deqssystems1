@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Modern Font Loading -->
+<link href="https://googleapis.com" rel="stylesheet">
+
+<style>
+    :root {
+        --brand-primary: #1e40af; 
+        --brand-dark: #1e293b; 
+        --brand-light: #eff6ff; 
+        --danger: #ef4444;
+        --danger-hover: #b91c1c;
+        --border-color: #e2e8f0;
+    }
+
+    .container { max-width: 1250px; margin: auto; padding: 10px 20px; font-family: 'Inter', sans-serif; }
+    
+    /* 🚀 COMPACT TOP BAR */
+    .top-bar { 
+        display: flex; justify-content: space-between; align-items: center; 
+        background: white; padding: 12px 25px; border-radius: 12px; 
+        border: 1px solid var(--border-color); margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .top-bar h1 { font-size: 18px; font-weight: 800; color: var(--brand-dark); margin: 0; }
+    .registry-btn { font-size: 12px; color: var(--brand-primary); text-decoration: none; font-weight: 700; background: var(--brand-light); padding: 6px 12px; border-radius: 6px; }
+
+    /* 🛠️ COMPACT WORKSPACE */
+    .section { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 15px; }
+    .section-title { font-size: 11px; font-weight: 800; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: block; }
+
+    /* Form UI */
+    .allocation-row { display: grid; grid-template-columns: 1.5fr 2fr 1fr 80px 80px auto; gap: 10px; align-items: end; background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); }
+    .form-group label { display: block; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
+    
+    input, select { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 13px; outline: none; background-color: #ffffff; }
+    input:focus, select:focus { border-color: var(--brand-primary); }
+
+    .btn-add-p { background: var(--brand-primary); color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-weight: 800; font-size: 16px; }
+    
+    /* Batch List */
+    #batchList { list-style: none; padding: 0; margin: 10px 0; display: flex; flex-direction: column; gap: 6px; }
+    .batch-item { background: #f0fdf4; padding: 10px 14px; border-radius: 6px; font-size: 13px; border: 1px solid #bbf7d0; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; box-sizing: border-box; }
+
+    .btn-save-all { width: 100%; padding: 12px; background: var(--brand-primary); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; }
+
+    /* 📊 TABLE AREA */
+    .table-container { border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: var(--brand-dark); padding: 10px 15px; text-align: left; font-size: 10px; color: white; text-transform: uppercase; }
+    td { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; font-size: 13px; vertical-align: middle; }
+    
+    /* 🔑 UPDATED: Badge Wrapper Layout to Support Inline Delete Actions */
+    .badge-container { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .load-badge { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 11px; border: 1px solid #bae6fd; display: inline-flex; align-items: center; gap: 8px; }
+    
+    /* 🔑 NEW: UI Actions Button Stylings */
+    .btn-del-badge { color: #ef4444; text-decoration: none; font-weight: bold; font-size: 14px; margin-left: 2px; padding: 0 2px; border-radius: 4px; display: inline-block; transition: all 0.2s ease; }
+    .btn-del-badge:hover { color: #b91c1c; background: #fee2e2; transform: scale(1.1); }
+    
+    .btn-del-queue { background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold; }
+    .btn-del-queue:hover { background: #ef4444; color: white; border-color: #ef4444; }
+
+    .alert { padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; font-weight: 600; text-align: center; }
+    .alert-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .alert-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+</style>
+
+<div class="container">
+    <!-- COMPACT TOP BAR -->
+    <div class="top-bar">
+        <h1>Obisa Junior: Lesson Allocation 2026</h1>
+        <a href="{% url 'teachers_registry' %}" class="registry-btn">Staff Registry →</a>
+    </div>
+
+    <!-- Django Notification Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- MAIN WORKSPACE FORM SUBMITTING TO DJANGO BACKEND -->
+    <form method="POST" id="allocationForm">
+        {% csrf_token %}
+        <div class="section">
+            <span class="section-title">Step 1: Build Teacher Workload</span>
+            
+            <div class="allocation-row">
+                <div class="form-group">
+                    <label>Instructor</label>
+                    <select name="teacher" id="teacherSelect" required>
+                        <option value="">Choose Instructor</option>
+                        {% for t in teachers %}
+                            <option value="{{ t.id }}">{{ t.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Subject</label>
+                    <select name="subject" id="id_subject" required>
+                        <option value="">Choose Subject</option>
+                        {% for sub_val, sub_label in subjects %}
+                            <option value="{{ sub_val }}">{{ sub_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Grade</label>
+                    <select name="grade" id="id_grade" required>
+                        <option value="">Grade</option>
+                        {% for grade_val, grade_label in grades %}
+                            <option value="{{ grade_val }}">{{ grade_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Singles</label>
+                    <input type="number" name="singles" id="singles" placeholder="0" min="0" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Doubles</label>
+                    <input type="number" name="doubles" id="doubles" placeholder="0" min="0" value="0">
+                </div>
+
+                <!-- Preview click check helper row trigger -->
+                <button type="button" class="btn-add-p" onclick="addReviewItem()">+</button>
+            </div>
+            
+            <!-- Quick frontend selection queue helper display -->
+            <ul id="batchList"></ul>
+            <button type="submit" class="btn-save-all">SAVE ASSIGNMENT TO DATABASE</button>
+        </div>
+    </form>
+
+    <!-- MASTER TABLE -->
+    <div class="section">
+        <span class="section-title">Step 2: Master Allocation Database</span>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 250px;">Teacher</th>
+                        <th>Subjects & Lessons Assigned</th>
+                    </tr>
+                </thead>
+                <tbody id="masterAllocationBody">
+                    <!-- Dynamic database population loops -->
+                    {% regroup allocations by teacher as teacher_allocations %}
+                    {% for group in teacher_allocations %}
+                    <tr>
+                        <td style="font-weight: 700; color: var(--brand-dark);">
+                            👤 {{ group.grouper.name }}
+                        </td>
+                        <td>
+                            <!-- 🔑 UPDATED: Badge Wrapper to allow layout spacing for inline deletion buttons -->
+                            <div class="badge-container">
+                                {% for item in group.list %}
+                                    <span class="load-badge">
+                                        📚 {{ item.subject }} ({{ item.grade }}) [Total: {{ item.total_lessons }} periods]
+                                        <!-- 🔑 NEW: Live Database Record Deletion Button with safety alert confirmation -->
+                                        <a href="{% url 'delete_allocation' item.id %}" class="btn-del-badge" title="Delete Allocation" onclick="return confirm('Are you sure you want to completely remove this subject assignment?');">×</a>
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" style="text-align: center; color: #64748b; padding: 20px;">
+                            No active class lesson allocations documented for academic period.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- INTERACTIVE ASYNCHRONOUS FILTER FILTER -->
+<script>
+document.getElementById('id_grade').addEventListener('change', function() {
+
+    const selectedGrade = this.value;
+    const subjectSelect = document.getElementById('id_subject');
+    
+    subjectSelect.innerHTML = '<option value="">-- Loading Subjects... --</option>';
+    
+    if (!selectedGrade) {
+        subjectSelect.innerHTML = '<option value="">Choose Subject</option>';
+        return;
+    }
+    
+    // Connects directly with the new API view in views.py
+    fetch(`/api/get-grade-subjects/?grade=${encodeURIComponent(selectedGrade)}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Network configuration error');
+            return response.json();
+        })
+        .then(data => {
+            subjectSelect.innerHTML = '<option value="">Choose Subject</option>';
+            if (data.subjects && data.subjects.length > 0) {
+                data.subjects.forEach(function(subject) {
+                    const option = document.createElement('option');
+                    option.value = subject;
+                    option.textContent = subject;
+                    subjectSelect.appendChild(option);
+                });
+            } else {
+                subjectSelect.innerHTML = '<option value="">-- No Subjects Configured --</option>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching subjects:', error);
+            subjectSelect.innerHTML = '<option value="">-- Error Syncing Options --</option>';
+        });
+});
+
+// Original Add Review Item frontend rendering capability with integrated queue item elimination buttons
+function addReviewItem() {
+    const teacherSelect = document.getElementById('teacherSelect');
+    const teacherName = teacherSelect.options[teacherSelect.selectedIndex].text;
+    const grade = document.getElementById('id_grade').value;
+    const subject = document.getElementById('id_subject').value;
+    const singles = document.getElementById('singles').value || 0;
+    const doubles = document.getElementById('doubles').value || 0;
+    
+    if(!teacherSelect.value || !grade || !subject) {
+        alert('Please complete Teacher, Grade, and Subject parameters before queueing.');
+        return;
+    }
+    
+    const batchList = document.getElementById('batchList');
+    const li = document.createElement('li');
+    li.className = 'batch-item';
+    
+    // 🔑 NEW: Embedded inline frontend element clean row button tracker 
+    li.innerHTML = `
+        <span>✏️ Ready to assign: <strong>${teacherName}</strong> - <strong>${subject}</strong> to <strong>${grade}</strong> (Singles: ${singles}, Doubles: ${doubles})</span>
+        <button type="button" class="btn-del-queue" onclick="this.parentElement.remove();">Remove</button>
+    `;
+    batchList.appendChild(li);
+}
+</script>
+
+{% endblock %}
