@@ -19,11 +19,11 @@ SECRET_KEY = os.environ.get(
 # Defaults to False in production, turns True only if you add DEBUG=True in Railway variables
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-# Updated for Kogwang School domains
+# Updated for your exact Kogwang School domain
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "kogwang-school-production-6ab2.up.railway.app",  # Add your exact new URL here
+    "kogwang-school-production-6ab2.up.railway.app",
     ".up.railway.app", 
 ]
 
@@ -39,9 +39,9 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
 
 
-# Updated to handle Kogwang student and teacher logins securely
+# Updated to secure browser form submittals on your exact URL
 CSRF_TRUSTED_ORIGINS = [
-    "https://railway.app",
+    "https://kogwang-school-production-6ab2.up.railway.app",
     "https://railway.app",
     "https://*.up.railway.app", 
 ]
