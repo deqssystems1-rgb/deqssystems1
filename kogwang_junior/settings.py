@@ -16,18 +16,20 @@ SECRET_KEY = os.environ.get(
     default='django-insecure-17(a6ca#w@wrvm0536ll=4^=uhpbvc8t)e^^)=-kk*ywt__ju+'
 )
 
+# Defaults to False in production, turns True only if you add DEBUG=True in Railway variables
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-# Updated to securely accept your main address and any school subdomain testing links
+# Updated for Kogwang School domains
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "deqssystems.up.railway.app",
-    ".up.railway.app",  # Crucial: This dot allows any school prefix on Railway to load
+    "kogwang.up.railway.app",
+    ".up.railway.app", 
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# Fixed security redirects to ensure they don't break local development
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
@@ -37,11 +39,11 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
 
 
-# Updated to handle student and teacher form logins securely for any school prefix
+# Updated to handle Kogwang student and teacher logins securely
 CSRF_TRUSTED_ORIGINS = [
-    "https://deqssystems.up.railway.app",
     "https://railway.app",
-    "https://*.up.railway.app",  # Crucial: This handles security tokens for school subdomains
+    "https://railway.app",
+    "https://*.up.railway.app", 
 ]
 
 
@@ -84,7 +86,7 @@ MIDDLEWARE = [
 ]
 
 
-ROOT_URLCONF = 'agawo_junior.urls'
+ROOT_URLCONF = 'kogwang.urls'
 
 
 # =========================
@@ -107,7 +109,7 @@ TEMPLATES = [
 ]
 
 
-WSGI_APPLICATION = 'agawo_junior.wsgi.application'
+WSGI_APPLICATION = 'kogwang.wsgi.application'
 
 
 # =========================
@@ -123,7 +125,7 @@ if database_url:
         'default': dj_database_url.parse(
             database_url,
             conn_max_age=600,
-            ssl_require=True
+            ssl_require=False  # Changed to False so Railway's internal connection works smoothly
         )
     }
 else:
@@ -156,7 +158,7 @@ USE_TZ = True
 
 
 # =========================
-# STATIC FILES (FIXED)
+# STATIC FILES (FIXED FOR MODERN WHITENOISE)
 # =========================
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -165,7 +167,8 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Updated to the modern WhiteNoise storage class to prevent breaking on deployment
+STATICFILES_STORAGE = "whitenoise.storage.CompressedWithFilesFilesStorage"
 
 
 # =========================
