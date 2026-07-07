@@ -69,21 +69,20 @@ INSTALLED_APPS = [
 # =========================
 # MIDDLEWARE (OPTIMIZED ORDER)
 # =========================
+# =========================
+# MIDDLEWARE (OPTIMIZED ORDER)
+# =========================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-
-    # 🔒 ANTI-ZERAKI MULTI-TENANT ROUTER PLACED HERE
-    # Placed right after SessionMiddleware so it has full, secure access to browser cookies!
-    'core.middleware.SchoolTenantMiddleware',
-
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 
 # FIXED: Points to your exact folder name on GitHub
