@@ -39,6 +39,18 @@ body{
     color:rgba(255,255,255,.9);
 }
 
+.welcome-msg {
+    margin-top: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.15);
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 50px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .title-line{
     width:100px;
     height:4px;
@@ -231,8 +243,14 @@ body{
 
     <!-- HEADER -->
     <div class="dashboard-header">
-        <h1 class="school-name">KOGWANG'COMPREHENSIVE SCHOOL</h1>
+        <h1 class="school-name">KOGWANG' COMPREHENSIVE SCHOOL</h1>
         <div class="school-sub">Powered by Deqs Systems </div>
+        
+        <!-- DYNAMIC GREETING SUBSECTION LAYER -->
+        <div class="welcome-msg">
+            Welcome back, {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}! 👋
+        </div>
+        
         <div class="title-line"></div>
     </div>
 
@@ -250,7 +268,9 @@ body{
         <a href="{% url 'teachers' %}" class="quick-card">
             <div class="quick-icon orange">👩‍🏫</div>
             <div class="quick-title">Teachers</div>
-            <div class="quick-sub">Staff roster</div>
+            <div class="quick-sub">
+                {% if total_teachers %}{{ total_teachers }} Registered{% else %}Staff roster{% endif %}
+            </div>
         </a>
 
         <a href="{% url 'lesson_allocation' %}" class="quick-card">
@@ -318,15 +338,7 @@ body{
                     <a href="{% url 'grade_students' 9 %}" class="grade-card g9">Grade 9</a>
                 </div>
             </div>
-
         </div>
-
     </div>
-
-    <div class="footer-note">
-        Powered by Deqs Sytems 
-    </div>
-
 </div>
-
 {% endblock %}
