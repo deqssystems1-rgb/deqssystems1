@@ -110,10 +110,12 @@ WSGI_APPLICATION = 'kogwang_junior.wsgi.application'
 
 
 # =========================
-# DATABASE (BULLETPROOF PRODUCTION MODIFICATION)
+# DATABASE (FORCED RAILWAY PRODUCTION)
 # =========================
-# Forces Django to scan for alternative string layouts injected by Railway
 database_url = os.environ.get('DATABASE_URL') or os.environ.get('PGURL')
+
+# Check if we are running live on Railway production environment
+IS_RAILWAY = os.environ.get('RAILWAY_ENVIRONMENT_NAME') is not None or os.environ.get('RAILWAY_STATIC_URL') is not None
 
 if database_url:
     if database_url.startswith('postgresql://'):
@@ -123,10 +125,14 @@ if database_url:
         'default': dj_database_url.parse(
             database_url,
             conn_max_age=600,
-            ssl_require=False  # Disabled to guarantee flawless communication on local internal nodes
+            ssl_require=False
         )
     }
+elif IS_RAILWAY:
+    # Forces a clear descriptive error on Railway if variables are not linking properly
+    raise RuntimeError("CRITICAL ERROR: DATABASE_URL is completely missing from Railway environment variables!")
 else:
+    # Use SQLite strictly for local development on your own laptop
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
