@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,9 +17,17 @@
 <body class="bg-[#F4F6F9] min-h-screen text-slate-800 font-sans flex">
 
     <!-- LEFT SIDEBAR NAVIGATION BLOCK (Updated to Academic Green Theme) -->
-    <aside class="w-64 bg-gradient-to-b from-[#1E5631] via-[#2E8B57] to-[#34A853]/10 min-h-screen p-4 flex flex-col gap-6 shrink-0 shadow-lg z-20">
+    <aside class="w-64 bg-gradient-to-b from-[#1E5631] via-[#2E8B57] to-[#34A853]/10 min-h-screen p-4 flex flex-col gap-5 shrink-0 shadow-lg z-20">
+        
+        <!-- BRAND LOGO COMPONENT LAYER -->
+        <div class="flex justify-center pt-2">
+            <img src="{% static 'images/logo.png' %}" 
+                 alt="Kogwang School Logo" 
+                 class="w-[85px] h-[85px] object-contain rounded-full bg-white/15 p-1.5 shadow-md">
+        </div>
+
         <!-- Sidebar Brand Title -->
-        <div class="px-3 py-2 text-white text-center">
+        <div class="px-3 text-white text-center">
             <h2 class="text-xl font-bold tracking-wide leading-tight">Kogwang' School </h2>
         </div>
 
