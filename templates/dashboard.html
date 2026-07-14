@@ -33,15 +33,21 @@ body::before {
     z-index: 1;
 }
 
-/* ================= HEADER ================= */
+/* ================= HEADER WITH CUSTOM KIDS BANNER ================= */
 .dashboard-header {
-    background: linear-gradient(135deg, #1e40af, #2563eb, #7c3aed);
+    background: url("{% static 'images/header_bg.png' %}") no-repeat center center;
+    background-size: cover;
     border-radius: 24px;
-    padding: 36px 20px;
+    padding: 50px 40px; /* Comfortable padding to voice text layout structures */
     margin-bottom: 24px;
-    text-align: center;
+    text-align: left; /* Shift text to the left so it drops inside the deep blue zone safely */
     color: white;
-    box-shadow: 0 20px 40px rgba(37, 99, 235, .25);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Aligns contents neatly to the left edge margin */
+    justify-content: center;
+    min-height: 200px; /* Preserves vertical stance on wide viewports */
 }
 
 .school-name {
@@ -50,31 +56,34 @@ body::before {
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 2px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); /* Text shadow ensures punchy readability */
 }
 
 .school-sub {
-    margin-top: 10px;
+    margin-top: 8px;
     font-size: 14px;
     color: rgba(255, 255, 255, .9);
+    font-weight: 600;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 .welcome-msg {
-    margin-top: 14px;
-    font-size: 16px;
+    margin-top: 16px;
+    font-size: 15px;
     font-weight: 700;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(30, 58, 138, 0.4); /* Dark blue tinted translucent pill */
     display: inline-block;
     padding: 6px 18px;
     border-radius: 50px;
     backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .title-line {
-    width: 100px;
+    width: 70px;
     height: 4px;
-    background: white;
-    margin: 16px auto 0;
+    background: #60a5fa; /* Modern soft blue separator node accent */
+    margin: 16px 0 0 0; /* Aligned neatly to the left instead of 'auto' center pattern */
     border-radius: 50px;
 }
 
@@ -83,7 +92,7 @@ body::before {
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 1.2px;
-    color: #1e293b; /* Darkened for higher contrast against custom background image layouts */
+    color: #1e293b; 
     font-weight: 800;
     margin: 20px 0 14px;
 }
@@ -97,7 +106,7 @@ body::before {
 }
 
 .quick-card {
-    background: rgba(255, 255, 255, 0.92); /* Subtle card opacity blend */
+    background: rgba(255, 255, 255, 0.92); 
     border-radius: 16px;
     padding: 14px;
     text-decoration: none;
@@ -161,7 +170,7 @@ body::before {
 
 /* ================= GRADE PANEL ================= */
 .grade-panel {
-    background: rgba(255, 255, 255, 0.92); /* Subtle transparency link */
+    background: rgba(255, 255, 255, 0.92); 
     border-radius: 22px;
     padding: 24px;
     box-shadow: 0 12px 28px rgba(0, 0, 0, .06);
@@ -248,13 +257,15 @@ body::before {
     color: #475569;
 }
 
-/* RESPONSIVE */
+/* RESPONSIVE SETUP ADJUSTMENTS */
 @media(max-width:992px){
     .quick-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 @media(max-width:768px){
     .school-name { font-size: 24px; }
+    .dashboard-header { padding: 30px 20px; align-items: center; text-align: center; }
+    .title-line { margin: 16px auto 0 auto; }
     .quick-grid { grid-template-columns: repeat(2, 1fr); }
     .grade-list { grid-template-columns: 1fr; }
 }
@@ -262,7 +273,7 @@ body::before {
 
 <div class="portal-main">
 
-    <!-- HEADER -->
+    <!-- HEADER WITH THE FRESH STUDENT WALPAPER GRID AS RE-EDITED -->
     <div class="dashboard-header">
         <h1 class="school-name">KOGWANG' COMPREHENSIVE SCHOOL</h1>
         <div class="school-sub">Powered by Deqs Systems </div>
@@ -345,6 +356,10 @@ body::before {
                 <div class="group-head">Upper Primary</div>
                 <div class="grade-list">
                     <a href="{% url 'grade_students' 4 %}" class="grade-card g4">Grade 4</a>
+            <div class="group-box">
+                <div class="group-head">Upper Primary</div>
+                <div class="grade-list">
+                    <a href="{% url 'grade_students' 4 %}" class="grade-card g4">Grade 4</a>
                     <a href="{% url 'grade_students' 5 %}" class="grade-card g5">Grade 5</a>
                     <a href="{% url 'grade_students' 6 %}" class="grade-card g6">Grade 6</a>
                 </div>
@@ -362,9 +377,7 @@ body::before {
         </div>
     </div>
     
-    <!-- FOOTER -->
-    <div class="footer-note">
-    <!-- FOOTER -->
+    <!-- FOOTER WITH AUTOMATED DYNAMIC YEAR DATETIME OBJECT -->
     <div class="footer-note">
         &copy; {% now "Y" %} Kogwang' Comprehensive School. All rights reserved.
     </div>
