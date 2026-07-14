@@ -48,55 +48,17 @@
 .text-center { text-align: center; }
 .bold { font-weight: bold; }
 
-/* ================= HEADER ================= */
-.header-table {
-    width: 100%;
-    margin-bottom: 10px;
-    border-collapse: collapse;
-}
-
-.logo-cell {
-    width: 120px;
-    vertical-align: middle;
-}
-
-.title-cell {
-    text-align: center;
-    vertical-align: middle;
-}
-
-.logo {
-    width: 120px;
-    height: auto;
-    object-fit: contain;
-    display: block;
-}
-
-.logo-fallback {
-    width: 120px;
-    height: 120px;
-    background: #cbd5e1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    color: #1e293b;
-    border: 2px solid #000000;
-    font-weight: bold;
-}
-
 .school-title {
     color: #0056B3;
-    font-size: 28px;
+    font-size: 32px;
     font-weight: bold;
-    margin: 0 0 5px 0;
+    font-family: "Times New Roman", Times, serif;
 }
 
 .school-subtitle {
-    font-size: 13px;
+    font-size: 14px;
     color: #1e293b;
     font-weight: bold;
-    margin: 2px 0;
 }
 
 /* ================= BANNER ================= */
@@ -144,7 +106,7 @@
 }
 
 .kpi-td {
-    width: 33%;
+    width: 33%; /* REVERTED TO 3 BLOCKS */
     padding: 12px;
     text-align: center;
     color: white;
@@ -211,13 +173,16 @@
 
     nav, header, .navbar, .top-bar, .no-print, .btn-row {
         display: none !important;
+        height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
     body, html, main, .main-content {
         visibility: visible !important;
         background: transparent !important;
-        margin: 0 !important;
         padding: 0 !important;
+        margin: 0 !important;
     }
 
     .report-container, .report-container * {
@@ -225,13 +190,19 @@
     }
 
     .report-container {
-        display: block !important;
+        position: static !important;
+        transform: none !important;
         width: 100% !important;
         max-width: 100% !important;
         box-shadow: none !important;
         margin: 0 !important;
         padding: 0 !important;
-        page-break-inside: avoid;
+        display: block !important;
+    }
+
+    .marks-table th, .marks-table td {
+        padding: 6px !important;
+        font-size: 12px !important;
     }
 
     * {
@@ -240,7 +211,8 @@
     }
 
     @page {
-        margin: 12mm 15mm;
+        size: portrait;
+        margin: 10mm 12mm;
     }
 }
 
@@ -250,7 +222,6 @@
 
     <!-- BUTTONS -->
     <div class="btn-row no-print">
-
         <a class="view-btn"
            href="{% url 'view_list' %}?grade={{ student.grade }}&term={{ selected_term }}&year={{ selected_year }}">
             📊 View List
@@ -265,41 +236,36 @@
         <button class="print-btn" onclick="window.print()">
             🖨️ Print Report
         </button>
-
     </div>
 
-    <!-- HEADER -->
-    <table class="header-table">
-        <tr>
-            <!-- Left Logo -->
-            <td class="logo-cell">
-                <img src="{% static 'images/logo.png' %}"
-                     class="logo"
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <!-- CENTERING FLEXBOX HEADER -->
+    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px; position: relative; width: 100%;">
+        
+        <!-- LOGO (Positioned absolutely on the left) -->
+        <div style="position: absolute; left: 0; top: 50%; transform: translateY(-50%);">
+            <img src="{% static 'images/logo.png' %}"
+                 style="width: 110px; height: auto; object-fit: contain;"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
 
-                <div class="logo-fallback" style="display:none;">
-                    SCHOOL LOGO
-                </div>
-            </td>
+            <div class="logo-fallback" style="display:none; width: 110px; height: 110px; background: #cbd5e1; align-items: center; justify-content: center; font-size: 10px; color: #1e293b; border: 2px solid #000000; font-weight: bold;">
+                SCHOOL LOGO
+            </div>
+        </div>
 
-            <!-- Centered School Title Content -->
-            <td class="title-cell">
-                <h1 class="school-title">AGAWO COMPREHENSIVE SCHOOL</h1>
-                <p class="school-subtitle">P.O. BOX 218-40222, OYUGIS</p>
-                <p class="school-subtitle">CONTACTS +254 733642329 | +254 715179886</p>
-            </td>
-
-            <!-- Invisible Right Space to keep Title Balanced Perfectly in Middle -->
-            <td class="logo-cell" style="visibility: hidden;">
-                <div style="width: 120px;"></div>
-            </td>
-        </tr>
-    </table>
+        <!-- CENTERED SCHOOL INFO -->
+        <div class="text-center" style="width: 100%; padding: 0 120px;">
+            <h1 class="school-title" style="margin: 0 0 4px 0; line-height: 1.2;">KOGWANG' COMPREHENSIVE SCHOOL</h1>
+            <p class="school-subtitle" style="margin: 2px 0;">P.O. BOX 467-40222, OYUGIS</p>
+            <p class="school-subtitle" style="margin: 2px 0;">CONTACTS 0707752011</p>
+            <p class="school-subtitle" style="margin: 2px 0;">EMAIL: davidouma563@gmail.com</p>
+        </div>
+        
+    </div>
 
     <!-- BANNER -->
     <table style="width:100%; margin-bottom:15px;">
         <tr>
-            <td class="banner-td">LEARNER'S PROGRESS REPORT CARD</td>
+            <td class="banner-td">LEARNER'S ASSESSEMENT REPORT CARD</td>
         </tr>
     </table>
 
@@ -328,7 +294,7 @@
         </tr>
     </table>
 
-    <!-- KPI -->
+    <!-- KPI BLOCKS (REVERTED TO TOTAL, AVERAGE, GRADE) -->
     <table class="kpi-table">
         <tr>
             <td class="kpi-td kpi-blue">Total<br>{{ total_marks }}</td>
@@ -341,24 +307,24 @@
     <table class="marks-table">
         <thead>
             <tr>
-                <th>SUBJECT</th>
+                <th style="text-align: left; padding-left: 10px;">SUBJECT</th>
                 <th>SCORE</th>
                 <th>RATING</th>
                 <th>TEACHER</th>
-                <th>TEACHER REMARKS</th>
+                <th style="width: 35%;">TEACHER REMARKS</th>
             </tr>
         </thead>
 
         <tbody>
             {% for item in subject_marks %}
             <tr class="{% cycle '' 'row-even' %}">
-                <td class="bold" style="font-weight: 800;">{{ item.subject|upper }}</td>
+                <td class="bold" style="font-weight: 800; text-align: left; padding-left: 10px;">{{ item.subject|upper }}</td>
                 
                 <!-- SCORE -->
-                <td class="bold">{{ item.score|default:"MISSED" }}</td>
+                <td class="bold" style="text-align: center;">{{ item.score|default:"MISSED" }}</td>
                 
                 <!-- RATING -->
-                <td class="bold">
+                <td class="bold" style="text-align: center;">
                     {% if item.score == None or item.score == "" or item.score|lower == "missed" %}
                         NA
                     {% else %}
@@ -366,11 +332,13 @@
                     {% endif %}
                 </td>
 
-                <!-- TEACHER NAME COLUMN -->
-                <td style="font-weight: 700;">{{ item.teacher|upper }}</td>
+                <!-- TEACHER NAME -->
+                <td style="font-weight: 700; text-align: center;">{{ item.teacher|upper }}</td>
                 
                 <!-- TEACHER REMARKS -->
-                <td style="font-style: italic;">{{ item.remarks|default:"-" }}</td>
+                <td style="font-style: italic; font-weight: 500; text-align: left; padding-left: 8px;">
+                    {{ item.remarks|default:"Satisfactory progression." }}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
@@ -381,15 +349,15 @@
         <tr>
             <td class="sign-box">
                 <div class="line"></div>
-                <div class="sign-title">Class Teacher Signature</div>
+                <div class="sign-title">Class Teacher</div>
             </td>
             <td class="sign-box">
                 <div class="line"></div>
-                <div class="sign-title">Parent / Guardian Signature</div>
+                <div class="sign-title">Headteacher's Signature</div>
             </td>
             <td class="sign-box">
                 <div class="line"></div>
-                <div class="sign-title">Headteacher Signature & Stamp</div>
+                <div class="sign-title">Parent's Signature</div>
             </td>
         </tr>
     </table>
